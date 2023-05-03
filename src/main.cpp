@@ -146,6 +146,17 @@ void vectortoBytes(accVector vector) {
 
   int32_t XTTmp = vector.XT;
   char* XTBytes = (char*) &XTTmp;
+
+    Serial.print("sizeof XTBytes: ");
+    Serial.println(sizeof(XTBytes), DEC);
+    Serial.print(XTBytes[0], HEX);
+    Serial.print(", ");
+    Serial.print(XTBytes[1], HEX);
+    Serial.print(", ");
+    Serial.print(XTBytes[2], HEX);
+    Serial.print(", ");
+    Serial.print(XTBytes[3], HEX);
+    Serial.println();
   
   #ifdef DEBUG
     Serial.print("sizeof XTBytes: ");
@@ -162,6 +173,17 @@ void vectortoBytes(accVector vector) {
 
   int32_t YTTmp = vector.YT;
   char* YTBytes = (char*) &YTTmp;
+
+    Serial.print("sizeof YTBytes: ");
+    Serial.println(sizeof(YTBytes), DEC);
+    Serial.print(YTBytes[0], HEX);
+    Serial.print(", ");
+    Serial.print(YTBytes[1], HEX);
+    Serial.print(", ");
+    Serial.print(YTBytes[2], HEX);
+    Serial.print(", ");
+    Serial.print(YTBytes[3], HEX);
+    Serial.println();
   
   #ifdef DEBUG
     Serial.print("sizeof YTBytes: ");
@@ -178,6 +200,17 @@ void vectortoBytes(accVector vector) {
 
   int32_t ZTTmp = vector.ZT;
   char* ZTBytes = (char*) &ZTTmp;
+
+    Serial.print("sizeof ZTBytes: ");
+    Serial.println(sizeof(ZTBytes), DEC);
+    Serial.print(ZTBytes[0], HEX);
+    Serial.print(", ");
+    Serial.print(ZTBytes[1], HEX);
+    Serial.print(", ");
+    Serial.print(ZTBytes[2], HEX);
+    Serial.print(", ");
+    Serial.print(ZTBytes[3], HEX);
+    Serial.println();
 
   #ifdef DEBUG
     Serial.print("sizeof ZTBytes: ");
@@ -389,6 +422,8 @@ accVector getAccAxes() {
 
     //Get timer value
     accVector.XT = (int32_t)timerRead(timer1);
+      Serial.print("accVector.XT: ");
+      Serial.println(accVector.XT);
 
     #ifdef DEBUG
       Serial.print("accVector.XT: ");
@@ -425,7 +460,9 @@ accVector getAccAxes() {
 
     //Get timer value
     accVector.YT = (int32_t)timerRead(timer1);
-
+      
+      Serial.print("accVector.YT: ");
+      Serial.println(accVector.YT);
 
     #ifdef DEBUG
       Serial.print("accVector.YT: ");
@@ -462,6 +499,8 @@ accVector getAccAxes() {
 
     //Get timer value
     accVector.ZT = (int32_t)timerRead(timer1);
+      Serial.print("accVector.ZT: ");
+      Serial.println(accVector.ZT);
 
     #ifdef DEBUG
       Serial.print("accVector.ZT: ");
@@ -543,13 +582,11 @@ void loop() {
           int32_t AccVectorTime = AccPacketStart - AccVectorEnd;
           uint32_t AccVectorTimeMicro = AccPacketStartMicro - AccVectorEndMicro;
 
-          Serial.print("AccVectorTime: ");
-          Serial.println(AccVectorTime);
-
-          Serial.print("AccVectorTimeMicro: ");
-          Serial.println(AccVectorTimeMicro);
-
           #ifdef DEBUG
+            Serial.print("AccVectorTime: ");
+            Serial.println(AccVectorTime);
+            Serial.print("AccVectorTimeMicro: ");
+            Serial.println(AccVectorTimeMicro);
             Serial.print("AccPacketStartMicro: ");
             Serial.println(AccPacketStartMicro);
           #endif /*DEBUG*/
@@ -581,7 +618,11 @@ void loop() {
 
           for(int i =0; i < 18; i++) {
             client.write(bytes[i]);
-            Serial.print("Data Sent ");
+            Serial.print("DEC ");
+            Serial.print(i);
+            Serial.print(": ");
+            Serial.println(bytes[i], DEC);
+            Serial.print("HEX ");
             Serial.print(i);
             Serial.print(": ");
             Serial.println(bytes[i], HEX);
