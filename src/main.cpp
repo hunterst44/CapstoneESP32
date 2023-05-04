@@ -618,20 +618,21 @@ void loop() {
 
           for(int i =0; i < 18; i++) {
             client.write(bytes[i]);
-            Serial.print("DEC ");
-            Serial.print(i);
-            Serial.print(": ");
-            Serial.println(bytes[i], DEC);
-            Serial.print("HEX ");
-            Serial.print(i);
-            Serial.print(": ");
-            Serial.println(bytes[i], HEX);
+            
+              Serial.print("HEX ");
+              Serial.print(i);
+              Serial.print(": ");
+              Serial.println(bytes[i], HEX);
 
             #ifdef DEBUG
-            Serial.print("Data Sent ");
-            Serial.print(i);
-            Serial.print(": ");
-            Serial.println(bytes[i], HEX);
+              Serial.print("DEC ");
+              Serial.print(i);
+              Serial.print(": ");
+              Serial.println(bytes[i], DEC);
+              Serial.print("HEX ");
+              Serial.print(i);
+              Serial.print(": ");
+              Serial.println(bytes[i], HEX);
             #endif /*DEBUG*/
           }
 
