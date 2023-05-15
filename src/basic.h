@@ -22,7 +22,7 @@
 #define accPacketSize 500     //Size of a unit of acc samples
 
 ///************************************
-//          State Model Globals
+//          Data Globals
 //*************************************
 
 extern uint8_t state;
@@ -35,6 +35,10 @@ struct accVector {
     uint32_t YT;
     uint32_t ZT;
 };
+
+extern hw_timer_t * timer1;
+extern uint8_t I2CPort;
+extern char bytes[18];
 
 ///************************************
 //          I2C Globals
