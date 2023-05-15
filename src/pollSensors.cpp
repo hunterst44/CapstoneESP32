@@ -11,7 +11,7 @@ void getAccAxes(uint8_t Port)   -- Controls flow of the sensor reading
             void changeI2CPort(uint8_t I2CPort) -- sets I2C port on multiplexor     
     int16_t getAxisAcc(int16_t axisHi, int16_t axisLo)  --  Create acceleration vector from raw bits (incl time data)
 
-vectortoBytes(accVector vector) -- makes byte array for TX
+vectortoBytes(accVector vector, uint8_t sensorIndex) -- makes byte array for TX
 
 */
 #include <Arduino.h>
@@ -34,49 +34,6 @@ accVector getAccAxes(uint8_t Port) {
   #endif /*DEBUG*/
     
     accVector accVector;
-    
-//     //Get Orientation register values
-//     int16_t orientReg = readAccReg(Port, 1);
-    
-//     #ifdef DEBUG
-//       Serial.print("orientReg: ");
-//       Serial.println(orientReg, HEX);
-//     #endif /*DEBUG*/
-//   /*
-//     orientation:
-//     bit 0 - DRDY 
-//     bit 4 ORXY0
-//     bit 5 ORXY1
-//     bit 6 ORZ
-
-//     Orientation ORXY0  ORXY1
-//         +X        0      0
-//         +Y        0      1
-//         -X        1      0
-//         -Y        1      1
-//   */
-//  orientReg = orientReg & 0b01110000;
-
-//  #ifdef DEBUG
-//     Serial.print("orientReg Shifted: ");
-//     Serial.println(orientReg, HEX);
-//   #endif /*DEBUG*/
-
-//  uint8_t orient = (uint8_t)(orientReg >> 4);
-
-//  #ifdef DEBUG
-//     Serial.print("orientation bits: ");
-//     Serial.println(orient, HEX);
-//     if (orient == 0) {
-//         Serial.print("orient = 0: +X");
-//     } else if (orient == 1) {
-//         Serial.print("orient = 1: +Y");
-//     } else if (orient == 2) {
-//         Serial.print("orient = 2: -X");
-//     } else if (orient == 3) {
-//         Serial.print("orient = 3: -Y");
-//     } 
-//   #endif /*DEBUG*/
 
     //Get X register values
     //XHi
@@ -305,7 +262,7 @@ int16_t getAxisAcc(int16_t axisHi, int16_t axisLo) {
 /********************************************
  * vectortoBytes(accVector vector)
 *********************************************/
-void vectortoBytes(accVector vector) {
+void vectortoBytes(accVector vector, uint8_t sensorIndex) {
   #ifdef DEBUG
     Serial.println();
     Serial.println("VectortoBytes(accVector vector)");
@@ -351,17 +308,6 @@ void vectortoBytes(accVector vector) {
 
   int32_t XTTmp = vector.XT;
   char* XTBytes = (char*) &XTTmp;
-
-    Serial.print("sizeof XTBytes: ");
-    Serial.println(sizeof(XTBytes), DEC);
-    Serial.print(XTBytes[0], HEX);
-    Serial.print(", ");
-    Serial.print(XTBytes[1], HEX);
-    Serial.print(", ");
-    Serial.print(XTBytes[2], HEX);
-    Serial.print(", ");
-    Serial.print(XTBytes[3], HEX);
-    Serial.println();
   
   #ifdef DEBUG
     Serial.print("sizeof XTBytes: ");
@@ -378,17 +324,6 @@ void vectortoBytes(accVector vector) {
 
   int32_t YTTmp = vector.YT;
   char* YTBytes = (char*) &YTTmp;
-
-    Serial.print("sizeof YTBytes: ");
-    Serial.println(sizeof(YTBytes), DEC);
-    Serial.print(YTBytes[0], HEX);
-    Serial.print(", ");
-    Serial.print(YTBytes[1], HEX);
-    Serial.print(", ");
-    Serial.print(YTBytes[2], HEX);
-    Serial.print(", ");
-    Serial.print(YTBytes[3], HEX);
-    Serial.println();
   
   #ifdef DEBUG
     Serial.print("sizeof YTBytes: ");
@@ -406,17 +341,6 @@ void vectortoBytes(accVector vector) {
   int32_t ZTTmp = vector.ZT;
   char* ZTBytes = (char*) &ZTTmp;
 
-    Serial.print("sizeof ZTBytes: ");
-    Serial.println(sizeof(ZTBytes), DEC);
-    Serial.print(ZTBytes[0], HEX);
-    Serial.print(", ");
-    Serial.print(ZTBytes[1], HEX);
-    Serial.print(", ");
-    Serial.print(ZTBytes[2], HEX);
-    Serial.print(", ");
-    Serial.print(ZTBytes[3], HEX);
-    Serial.println();
-
   #ifdef DEBUG
     Serial.print("sizeof ZTBytes: ");
     Serial.println(sizeof(ZTBytes), DEC);
@@ -429,28 +353,29 @@ void vectortoBytes(accVector vector) {
     Serial.print(ZTBytes[3], HEX);
     Serial.println();
   #endif /*DEBUG*/
+  
+  sensorIndex = sensorIndex*ACCPACKSIZE;
+  bytes[0 + (sensorIndex)] = XAccBytes[0];
+  bytes[1 + (sensorIndex)] = XAccBytes[1];
+  bytes[2 + (sensorIndex)] = YAccBytes[0];
+  bytes[3 + (sensorIndex)] = YAccBytes[1];
+  bytes[4 + (sensorIndex)] = ZAccBytes[0];
+  bytes[5 + (sensorIndex)] = ZAccBytes[1];
 
-  bytes[0] = XAccBytes[0];
-  bytes[1] = XAccBytes[1];
-  bytes[2] = YAccBytes[0];
-  bytes[3] = YAccBytes[1];
-  bytes[4] = ZAccBytes[0];
-  bytes[5] = ZAccBytes[1];
+  bytes[6 + (sensorIndex)] = XTBytes[0];
+  bytes[7 + (sensorIndex)] = XTBytes[1];
+  bytes[8 + (sensorIndex)] = XTBytes[2];
+  bytes[9 + (sensorIndex)] = XTBytes[3];
 
-  bytes[6] = XTBytes[0];
-  bytes[7] = XTBytes[1];
-  bytes[8] = XTBytes[2];
-  bytes[9] = XTBytes[3];
+  bytes[10 + (sensorIndex)] = YTBytes[0];
+  bytes[11 + (sensorIndex)] = YTBytes[1];
+  bytes[12 + (sensorIndex)] = YTBytes[2];
+  bytes[13 + (sensorIndex)] = YTBytes[3];
 
-  bytes[10] = YTBytes[0];
-  bytes[11] = YTBytes[1];
-  bytes[12] = YTBytes[2];
-  bytes[13] = YTBytes[3];
-
-  bytes[14] = ZTBytes[0];
-  bytes[15] = ZTBytes[1];
-  bytes[16] = ZTBytes[2];
-  bytes[17] = ZTBytes[3];
+  bytes[14 + (sensorIndex)] = ZTBytes[0];
+  bytes[15 + (sensorIndex)] = ZTBytes[1];
+  bytes[16 + (sensorIndex)] = ZTBytes[2];
+  bytes[17 + (sensorIndex)] = ZTBytes[3];
 
 #ifdef DEBUG
   Serial.println();

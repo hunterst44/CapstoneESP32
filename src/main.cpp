@@ -28,9 +28,9 @@ WiFiServer wifiServer(80);
 WiFiClient client;
 int16_t socketTestData = 4040;
 
-char bytes[18];
+char bytes[SOCKPACKSIZE];
 accVector accVecArray[2]; //array of vector arrays - one per sensor
-accVector Acc1Vectors[accPacketSize];
+//accVector Acc1Vectors[accPacketSize];
 
 hw_timer_t * timer1 = NULL;
 uint32_t AccPacketStart;
@@ -122,8 +122,9 @@ void loop() {
           
           //Get data
           accVecArray[0] = getAccAxes(1);  //Gets data from the accelerometer on I2C port 1 (SCL0 /SDA0)
-    
-          vectortoBytes(accVecArray[0]);
+          accVecArray[1] = getAccAxes(2);  //Gets data from the accelerometer on I2C port 2 (SCL1 /SDA1)
+          vectortoBytes(accVecArray[0], 0);  //Puts data into byte format for socket TX
+          vectortoBytes(accVecArray[1], 1);  //Puts data into byte format for socket TX
 
           #ifdef DEBUG
             Serial.print("accVector.XAcc: ");
@@ -141,7 +142,7 @@ void loop() {
           #endif /*DEBUG*/
 
           //Write vector byte array to socket
-          for(int i =0; i < 18; i++) {
+          for(int i = 0; i < SOCKPACKSIZE; i++) {
             client.write(bytes[i]);
             
               Serial.print("HEX ");
