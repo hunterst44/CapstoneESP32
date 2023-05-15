@@ -1,3 +1,13 @@
+/*
+main.cpp
+
+Created May 1, 2023 by Joel Legassie
+Sensor polling is initiated when the ESP32 receives 0xFF from the client and continues until the client closes the connection
+
+
+*/
+
+
 #include <Arduino.h>
 #include <WiFi.h>
 #include "basic.h"
@@ -7,9 +17,8 @@
 
 //Globals
 uint8_t I2CPort = 0;
-uint8_t arrayCount = 0;
-//int16_t XHiReg = 0x03;
-uint8_t dataCount = 0;
+//uint8_t arrayCount = 0;
+//uint8_t dataCount = 0;
 
 //int16_t Acc1Avg[3];   //XYZ vector
 
@@ -20,6 +29,7 @@ WiFiClient client;
 int16_t socketTestData = 4040;
 
 char bytes[18];
+accVector accVecArray[2]; //array of vector arrays - one per sensor
 accVector Acc1Vectors[accPacketSize];
 
 hw_timer_t * timer1 = NULL;
@@ -28,8 +38,9 @@ uint32_t AccPacketStartMicro;
 uint32_t AccVectorEnd = 0;
 uint32_t AccVectorEndMicro = 0;
 
-//Functions
-
+/************************
+ * setup()
+*************************/
 void setup() {
   
   Wire.begin(I2C_SDA, I2C_SCL);
@@ -65,6 +76,9 @@ void setup() {
   #endif /*DEBUG*/
 }
 
+/************************
+ * loop()
+*************************/
 void loop() {
 
   client = wifiServer.available();
@@ -107,15 +121,9 @@ void loop() {
           #endif /*DEBUG*/
           
           //Get data
-          Acc1Vector = getAccAxes();  //Gets data from the accelerometers
-          //Acc1Vectors is a circular array holding the last 500 samples
-          if (dataCount < accPacketSize) {
-            Acc1Vectors[dataCount] = Acc1Vector;  //Puts acceleration vector into vector array
-          } else {
-            dataCount = 0;
-          }
-          vectortoBytes(Acc1Vector);
-          dataCount++;
+          accVecArray[0] = getAccAxes(1);  //Gets data from the accelerometer on I2C port 1 (SCL0 /SDA0)
+    
+          vectortoBytes(accVecArray[0]);
 
           #ifdef DEBUG
             Serial.print("accVector.XAcc: ");

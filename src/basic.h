@@ -9,10 +9,10 @@
 #define I2C_SDA 0     //I2C pins
 #define I2C_SCL 1
 #define MXCI2CADDR 0x15   //I2C Address for MXC400 Accelerometer
-#define AccPort1 1        //Ports for Accelerometer 1 (for multiplexor)
-#define AccPort2 2
-#define AccPort3 3
-#define AccPort4 4
+// #define AccPort1 1        //Ports for Accelerometer 1 (for multiplexor)
+// #define AccPort2 2
+// #define AccPort3 3
+// #define AccPort4 4
 #define XOUTHI 0x03      //Registers for Acceleration data output
 #define XOUTLO 0x04 
 #define YOUTHI 0x05 
@@ -25,8 +25,8 @@
 //          Data Globals
 //*************************************
 
-extern uint8_t state;
-extern uint8_t debug; 
+// extern uint8_t state;
+// extern uint8_t debug; 
 struct accVector {
     int16_t XAcc;
     int16_t YAcc;
@@ -39,14 +39,15 @@ struct accVector {
 extern hw_timer_t * timer1;
 extern uint8_t I2CPort;
 extern char bytes[18];
+extern accVector accVecArray[2];
 
 ///************************************
 //          I2C Globals
 //*************************************
-extern void changeI2CPort(uint8_t I2CPort);
+extern accVector getAccAxes(uint8_t Port);
 extern int16_t readAccReg(uint8_t Port, uint8_t r);
+extern void changeI2CPort(uint8_t I2CPort);
 extern int16_t getAxisAcc(int16_t axisHi, int16_t axisLo);
-extern accVector getAccAxes();
 extern void vectortoBytes(accVector vector);
 
 //**********************************

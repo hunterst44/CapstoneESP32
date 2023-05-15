@@ -4,7 +4,7 @@ Created May 15, 2023 by Joel Legassie
 
 Contains functions used to gather data from MXC4005XC-B Accelerometer
 
-void getAccAxes()   -- Controls flow of the sensor reading 
+void getAccAxes(uint8_t Port)   -- Controls flow of the sensor reading 
     calls:
     int16_t readAccReg(uint8_t Port, uint8_t r)  --  gets raw bits from sensor  
         calls:
@@ -26,7 +26,7 @@ vectortoBytes(accVector vector) -- makes byte array for TX
  * getAccAxes()
 *************************/
 
-accVector getAccAxes() {
+accVector getAccAxes(uint8_t Port) {
  //Read Axes of Acc1
   #ifdef DEBUG
     Serial.println();
@@ -36,7 +36,7 @@ accVector getAccAxes() {
     accVector accVector;
     
 //     //Get Orientation register values
-//     int16_t orientReg = readAccReg(AccPort1, 1);
+//     int16_t orientReg = readAccReg(Port, 1);
     
 //     #ifdef DEBUG
 //       Serial.print("orientReg: ");
@@ -80,7 +80,7 @@ accVector getAccAxes() {
 
     //Get X register values
     //XHi
-    int16_t XHi = readAccReg(AccPort1, 3);
+    int16_t XHi = readAccReg(Port, 3);
 
     #ifdef DEBUG
       Serial.print("XHi: ");
@@ -88,7 +88,7 @@ accVector getAccAxes() {
     #endif /*DEBUG*/
 
     //XLo  
-    int16_t XLo = readAccReg(AccPort1, 4);
+    int16_t XLo = readAccReg(Port, 4);
 
     #ifdef DEBUG
       Serial.print("XLo: ");
@@ -118,7 +118,7 @@ accVector getAccAxes() {
 
     //Get Y register values
     //YHi
-    int16_t YHi = readAccReg(AccPort1, 5);
+    int16_t YHi = readAccReg(Port, 5);
 
     #ifdef DEBUG
       Serial.print("YHi: ");
@@ -126,7 +126,7 @@ accVector getAccAxes() {
     #endif /*DEBUG*/
 
     //YLo  
-    int16_t YLo = readAccReg(AccPort1, 6);
+    int16_t YLo = readAccReg(Port, 6);
 
     #ifdef DEBUG
       Serial.print("YLo: ");
@@ -157,7 +157,7 @@ accVector getAccAxes() {
 
     //Get Z register values
     //Zi  
-    int16_t ZHi = readAccReg(AccPort1, 7);
+    int16_t ZHi = readAccReg(Port, 7);
 
     #ifdef DEBUG
       Serial.print("ZHi: ");
@@ -165,7 +165,7 @@ accVector getAccAxes() {
     #endif /*DEBUG*/
 
     //ZLo  
-    int16_t ZLo = readAccReg(AccPort1, 8);
+    int16_t ZLo = readAccReg(Port, 8);
 
     #ifdef DEBUG
       Serial.print("ZLo: ");
