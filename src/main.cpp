@@ -6,8 +6,6 @@ Sensor polling is initiated when the ESP32 receives 0xFF from the client and con
 
 
 */
-
-
 #include <Arduino.h>
 #include <WiFi.h>
 #include "basic.h"
@@ -17,7 +15,7 @@ Sensor polling is initiated when the ESP32 receives 0xFF from the client and con
 
 //Globals
 uint8_t I2CPort = 0;
-//uint8_t arrayCount = 0;
+uint8_t vecCount = 0;  //Count number of samples taken for timing tests
 //uint8_t dataCount = 0;
 
 //int16_t Acc1Avg[3];   //XYZ vector
@@ -33,10 +31,15 @@ accVector accVecArray[2]; //array of vector arrays - one per sensor
 //accVector Acc1Vectors[accPacketSize];
 
 hw_timer_t * timer1 = NULL;
+uint32_t AccVecStart;
+uint32_t AccVecStartMicro;
 uint32_t AccPacketStart;
 uint32_t AccPacketStartMicro;
 uint32_t AccVectorEnd = 0;
 uint32_t AccVectorEndMicro = 0;
+uint32_t AccPacketEnd;
+uint32_t AccPacketEndMicro;
+
 
 /************************
  * setup()
@@ -81,6 +84,10 @@ void setup() {
 *************************/
 void loop() {
 
+  if (vecCount == 0) {
+      AccPacketStartMicro = timerReadMicros(timer1);
+  }
+
   client = wifiServer.available();
  
   if (client) {
@@ -103,28 +110,22 @@ void loop() {
           accVector Acc1Vector;
 
           //Measuring Time
-          AccPacketStart = timerRead(timer1);
+          AccVecStart = timerRead(timer1);
           #ifdef DEBUG
-            Serial.print("AccPacketStart: ");
-            Serial.println(AccPacketStart);
+            Serial.print("AccVecStart: ");
+            Serial.println(AccVecStart);
           #endif /*DEBUG*/
-          AccPacketStartMicro = timerReadMicros(timer1);
-          int32_t AccVectorTime = AccPacketStart - AccVectorEnd;
-          uint32_t AccVectorTimeMicro = AccPacketStartMicro - AccVectorEndMicro;
-          #ifdef DEBUG
-            Serial.print("AccVectorTime: ");
-            Serial.println(AccVectorTime);
-            Serial.print("AccVectorTimeMicro: ");
-            Serial.println(AccVectorTimeMicro);
-            Serial.print("AccPacketStartMicro: ");
-            Serial.println(AccPacketStartMicro);
-          #endif /*DEBUG*/
+          AccVecStartMicro = timerReadMicros(timer1);
           
           //Get data
+          uint32_t getDataStart = timerReadMicros(timer1);
           accVecArray[0] = getAccAxes(1);  //Gets data from the accelerometer on I2C port 1 (SCL0 /SDA0)
           accVecArray[1] = getAccAxes(2);  //Gets data from the accelerometer on I2C port 2 (SCL1 /SDA1)
           vectortoBytes(accVecArray[0], 0);  //Puts data into byte format for socket TX
           vectortoBytes(accVecArray[1], 1);  //Puts data into byte format for socket TX
+          uint32_t getDataEnd = timerReadMicros(timer1);
+          Serial.print("data Time Micros: ");
+          Serial.println(getDataEnd - getDataStart);
 
           #ifdef DEBUG
             Serial.print("accVector.XAcc: ");
@@ -142,6 +143,7 @@ void loop() {
           #endif /*DEBUG*/
 
           //Write vector byte array to socket
+          uint32_t TXStart = timerReadMicros(timer1);
           for(int i = 0; i < SOCKPACKSIZE; i++) {
             client.write(bytes[i]);
             
@@ -161,6 +163,19 @@ void loop() {
               Serial.println(bytes[i], HEX);
             #endif /*DEBUG*/
           }
+          uint32_t TXEnd = timerReadMicros(timer1);
+          Serial.print("Tx Time Micros: ");
+          Serial.println(TXEnd - TXStart);
+
+          vecCount++;  //Increment count - for timing
+
+          if (vecCount == 50) {
+            //AccPacketEnd = timerRead(timer1);
+            AccPacketEndMicro = timerReadMicros(timer1);
+            Serial.print("packet Time Micros: ");
+            Serial.println(AccPacketEndMicro - AccPacketStartMicro);
+            vecCount = 0;
+          } 
 
               #ifdef DEBUG
                 Serial.print("socketTestData Sent: ");
@@ -168,8 +183,25 @@ void loop() {
               #endif /*DEBUG*/
 
               //Timing Tests 
-              AccVectorEnd = AccPacketStart;
-              AccVectorEndMicro = AccPacketStartMicro;
+              AccVectorEnd = timerRead(timer1);
+              AccVectorEndMicro = timerReadMicros(timer1);
+
+              uint32_t AccVectorTime = AccVectorEnd - AccVecStart;
+              uint32_t AccVectorTimeMicro = AccVectorEndMicro - AccVecStartMicro;
+
+              Serial.print("AccVectorTime: ");
+              Serial.println(AccVectorTime);
+              Serial.print("AccVectorTimeMicro: ");
+              Serial.println(AccVectorTimeMicro);
+
+              #ifdef DEBUG
+                Serial.print("AccVectorTime: ");
+                Serial.println(AccVectorTime);
+                Serial.print("AccVectorTimeMicro: ");
+                Serial.println(AccVectorTimeMicro);
+                Serial.print("AccVecStartMicro: ");
+                Serial.println(AccVecStartMicro);
+              #endif /*DEBUG*/
 
               #ifdef DEBUG
                 
