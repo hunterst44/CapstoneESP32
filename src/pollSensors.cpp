@@ -30,6 +30,12 @@ vectortoBytes(accVector vector, uint8_t sensorIndex) -- makes byte array for TX
 
 accVector getAccAxes(uint8_t Port) {
  //Read Axes of Acc1
+  Serial.println();
+  Serial.println("accVector getAccAxes()");
+  
+  Serial.print("Sensor: ");
+  Serial.println(Port, DEC);
+
   #ifdef DEBUG
     Serial.println();
     Serial.print("accVector getAccAxes()");
@@ -64,8 +70,19 @@ accVector getAccAxes(uint8_t Port) {
 
     //Get timer value
     accVector.XT = (int32_t)timerRead(timer1);
-      Serial.print("accVector.XT: ");
-      Serial.println(accVector.XT);
+
+      // if (tdxCount == 0 && Port == 1) {
+      //   tdxCount++;
+      //   Serial.print("XAxis Sample Period Start: ");
+      //   TdXStart = timerReadMicros(timer1);  
+      // } else if (tdxCount == 2 && Port == 1) {
+      //   TdXEnd = timerReadMicros(timer1);
+      //   Serial.print("XAxis Sample Period: ");
+      //   Serial.println(TdXEnd - TdXStart, DEC);
+      //   tdxCount = 0;
+      // } else if (Port == 1){
+      //   tdxCount++;
+      // }
 
     #ifdef DEBUG
       Serial.print("accVector.XT: ");
@@ -102,9 +119,6 @@ accVector getAccAxes(uint8_t Port) {
 
     //Get timer value
     accVector.YT = (int32_t)timerRead(timer1);
-      
-      Serial.print("accVector.YT: ");
-      Serial.println(accVector.YT);
 
     #ifdef DEBUG
       Serial.print("accVector.YT: ");
@@ -141,8 +155,6 @@ accVector getAccAxes(uint8_t Port) {
 
     //Get timer value
     accVector.ZT = (int32_t)timerRead(timer1);
-      Serial.print("accVector.ZT: ");
-      Serial.println(accVector.ZT);
 
     #ifdef DEBUG
       Serial.print("accVector.ZT: ");

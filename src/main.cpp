@@ -45,6 +45,10 @@ uint32_t AccVectorEnd = 0;
 uint32_t AccVectorEndMicro = 0;
 uint32_t AccPacketEnd;
 uint32_t AccPacketEndMicro;
+uint32_t getDataStart;
+uint32_t TdXStart;
+uint32_t TdXEnd;
+uint8_t tdxCount = 0;
 
 
 /************************
@@ -126,25 +130,25 @@ void loop() {
           //Get data
           
           if (sampleCount < MOVINGAVGSIZE) {
-            uint32_t getDataStart = timerReadMicros(timer1);
+            getDataStart = timerReadMicros(timer1);
             accVecArray[0][sampleCount] = getAccAxes(1);  //Gets data from the accelerometer on I2C port 1 (SCL0 /SDA0)
             accVecArray[1][sampleCount] = getAccAxes(2);  //Gets data from the accelerometer on I2C port 2 (SCL1 /SDA1)
-
+            accVecArray[2][sampleCount] = getAccAxes(1);  //Gets data from the accelerometer on I2C port 1 (SCL0 /SDA0)
+            accVecArray[3][sampleCount] = getAccAxes(2);  //Gets data from the accelerometer on I2C port 2 (SCL1 /SDA1)
             uint32_t getDataEnd = timerReadMicros(timer1);
-            Serial.print("data Time Micros: ");
-            Serial.println(getDataEnd - getDataStart);
+            // Serial.print("data Time Micros: ");
+            // Serial.println(getDataEnd - getDataStart);
             sampleCount++;
           }
 
           if (sampleCount == MOVINGAVGSIZE) {        //After moving average size of samples (3) filter
-            accVector AccVectorMAVG[NUMSENSORS];
-            for (int i =0; i < NUMSENSORS; i++) {   //One vector per sensor
-              AccVectorMAVG[i] = movingAvg(i);     
-
-              vectortoBytes(AccVectorMAVG[i], i);  //Puts data into byte format for socket TX
-              //vectortoBytes(AccVectorMAVG[1], 1);  //Puts data into byte format for socket TX
+            // accVector AccVectorMAVG[NUMSENSORS];
+            // for (int i =0; i < NUMSENSORS; i++) {   //One vector per sensor
+            //   AccVectorMAVG[i] = movingAvg(i);     
+              vectortoBytes(accVecArray[0][0], 0);  //Puts data into byte format for socket TX
+              vectortoBytes(accVecArray[1][0], 1);  //Puts data into byte format for socket TX
+              sampleCount = 0;
             }
-          }
 
           #ifdef DEBUG
             Serial.print("accVector.XAcc: ");
@@ -162,6 +166,8 @@ void loop() {
           #endif /*DEBUG*/
 
           //Write vector byte array to socket
+            Serial.println();
+            Serial.println("TX Time");
           uint32_t TXStart = timerReadMicros(timer1);
           for(int i = 0; i < SOCKPACKSIZE; i++) {
             client.write(bytes[i]);
@@ -183,16 +189,16 @@ void loop() {
             #endif /*DEBUG*/
           }
           uint32_t TXEnd = timerReadMicros(timer1);
-          Serial.print("Tx Time Micros: ");
-          Serial.println(TXEnd - TXStart);
+          // Serial.print("Tx Time Micros: ");
+          // Serial.println(TXEnd - TXStart);
 
           vecCount++;  //Increment count - for timing
 
           if (vecCount == 50) {
             //AccPacketEnd = timerRead(timer1);
             AccPacketEndMicro = timerReadMicros(timer1);
-            Serial.print("packet Time Micros: ");
-            Serial.println(AccPacketEndMicro - AccPacketStartMicro);
+            // Serial.print("packet Time Micros: ");
+            // Serial.println(AccPacketEndMicro - AccPacketStartMicro);
             vecCount = 0;
           } 
 
