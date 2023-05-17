@@ -11,6 +11,7 @@ void getAccAxes(uint8_t Port)   -- Controls flow of the sensor reading
             void changeI2CPort(uint8_t I2CPort) -- sets I2C port on multiplexor     
     int16_t getAxisAcc(int16_t axisHi, int16_t axisLo)  --  Create acceleration vector from raw bits (incl time data)
 
+accVector movingAvg(uint8_t vecIndex) -- Averages three samples to create a moving average vector
 vectortoBytes(accVector vector, uint8_t sensorIndex) -- makes byte array for TX
 
 */
@@ -20,6 +21,7 @@ vectortoBytes(accVector vector, uint8_t sensorIndex) -- makes byte array for TX
 #include <Wire.h>
 #include <stdlib.h>
 #include "secrets.h"
+#include <math.h>
 
 
 /************************
@@ -385,6 +387,40 @@ void vectortoBytes(accVector vector, uint8_t sensorIndex) {
   }
   Serial.println();
 #endif /*DEBUG*/
+}
+
+
+/********************************************
+ * vectortoBytes(accVector vector)
+*********************************************/
+accVector movingAvg(uint8_t vecIndex) {
+  //ACC Values
+  accVector movingAvgVect;
+  //Floats to hold intermediate values
+  float Xholder = 0;
+  float Yholder = 0;
+  float Zholder = 0;
+  //Loop through values to get total
+  for (int i =0; i < NUMSENSORS; i++) {
+    Xholder += (float)accVecArray[vecIndex][i].XAcc;
+    Yholder += (float)accVecArray[vecIndex][i].YAcc; 
+    Zholder += (float)accVecArray[vecIndex][i].ZAcc;   
+  }
+  //divide by the number of items in the moving average
+  Xholder = Xholder/ MOVINGAVGSIZE;
+  Yholder = Yholder/ MOVINGAVGSIZE;
+  Zholder = Zholder/ MOVINGAVGSIZE;
+
+  movingAvgVect.XAcc = (uint16_t)round(Xholder);
+  movingAvgVect.YAcc = (uint16_t)round(Yholder);
+  movingAvgVect.ZAcc = (uint16_t)round(Zholder);
+
+  //TODO calculate times and interpolated ACC values
+  movingAvgVect.XT = accVecArray[vecIndex][0].XT;
+  movingAvgVect.YT = accVecArray[vecIndex][0].YT;
+  movingAvgVect.ZT = accVecArray[vecIndex][0].ZT;
+
+  return movingAvgVect;
 }
 
 /*

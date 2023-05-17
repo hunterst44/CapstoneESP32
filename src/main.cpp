@@ -12,6 +12,7 @@ Sensor polling is initiated when the ESP32 receives 0xFF from the client and con
 #include <Wire.h>
 #include <stdlib.h>
 #include "secrets.h"
+#include <math.h>
 
 //Globals
 uint8_t I2CPort = 0;
@@ -27,10 +28,15 @@ WiFiClient client;
 int16_t socketTestData = 4040;
 
 char bytes[SOCKPACKSIZE];
-accVector accVecArray[2]; //array of vector arrays - one per sensor
+accVector accVecArray[NUMSENSORS][MOVINGAVGSIZE]; //array of vector arrays 
 //accVector Acc1Vectors[accPacketSize];
+uint8_t sampleCount = 0;    //Counts number of samples for the moving average filter
 
+
+//Timer stuff
 hw_timer_t * timer1 = NULL;
+
+//Measurement globals - can remove from production
 uint32_t AccVecStart;
 uint32_t AccVecStartMicro;
 uint32_t AccPacketStart;
@@ -107,7 +113,7 @@ void loop() {
             Serial.println("Start Acc data packet");
           #endif /*DEBUG*/
 
-          accVector Acc1Vector;
+          //accVector Acc1Vector;
 
           //Measuring Time
           AccVecStart = timerRead(timer1);
@@ -118,14 +124,27 @@ void loop() {
           AccVecStartMicro = timerReadMicros(timer1);
           
           //Get data
-          uint32_t getDataStart = timerReadMicros(timer1);
-          accVecArray[0] = getAccAxes(1);  //Gets data from the accelerometer on I2C port 1 (SCL0 /SDA0)
-          accVecArray[1] = getAccAxes(2);  //Gets data from the accelerometer on I2C port 2 (SCL1 /SDA1)
-          vectortoBytes(accVecArray[0], 0);  //Puts data into byte format for socket TX
-          vectortoBytes(accVecArray[1], 1);  //Puts data into byte format for socket TX
-          uint32_t getDataEnd = timerReadMicros(timer1);
-          Serial.print("data Time Micros: ");
-          Serial.println(getDataEnd - getDataStart);
+          
+          if (sampleCount < MOVINGAVGSIZE) {
+            uint32_t getDataStart = timerReadMicros(timer1);
+            accVecArray[0][sampleCount] = getAccAxes(1);  //Gets data from the accelerometer on I2C port 1 (SCL0 /SDA0)
+            accVecArray[1][sampleCount] = getAccAxes(2);  //Gets data from the accelerometer on I2C port 2 (SCL1 /SDA1)
+
+            uint32_t getDataEnd = timerReadMicros(timer1);
+            Serial.print("data Time Micros: ");
+            Serial.println(getDataEnd - getDataStart);
+            sampleCount++;
+          }
+
+          if (sampleCount == MOVINGAVGSIZE) {        //After moving average size of samples (3) filter
+            accVector AccVectorMAVG[NUMSENSORS];
+            for (int i =0; i < NUMSENSORS; i++) {   //One vector per sensor
+              AccVectorMAVG[i] = movingAvg(i);     
+
+              vectortoBytes(AccVectorMAVG[i], i);  //Puts data into byte format for socket TX
+              //vectortoBytes(AccVectorMAVG[1], 1);  //Puts data into byte format for socket TX
+            }
+          }
 
           #ifdef DEBUG
             Serial.print("accVector.XAcc: ");

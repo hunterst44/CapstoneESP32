@@ -20,8 +20,10 @@
 #define ZOUTHI 0x07 
 #define ZOUTLO 0x08 
 //#define accPacketSize 500     //Size of a unit of acc samples
+#define NUMSENSORS 2       //NUmber of sensors
 #define ACCPACKSIZE 18     //Size in bytes to send a sample from 1 accelerometer
 #define SOCKPACKSIZE 36   //Total size of packet set to socket client (ACCPACKSIZE * number of sensors)
+#define MOVINGAVGSIZE 3   //Nof samples to include in moving average
 
 ///************************************
 //          Data Globals
@@ -41,7 +43,7 @@ struct accVector {
 extern hw_timer_t * timer1;
 extern uint8_t I2CPort;
 extern char bytes[SOCKPACKSIZE];
-extern accVector accVecArray[2];
+extern accVector accVecArray[NUMSENSORS][MOVINGAVGSIZE];
 
 ///************************************
 //          I2C Globals
@@ -51,6 +53,7 @@ extern int16_t readAccReg(uint8_t Port, uint8_t r);
 extern void changeI2CPort(uint8_t I2CPort);
 extern int16_t getAxisAcc(int16_t axisHi, int16_t axisLo);
 extern void vectortoBytes(accVector vector, uint8_t sensorIndex);
+extern accVector movingAvg(uint8_t vecIndex);
 
 //**********************************
 //           WiFI Server Globals
