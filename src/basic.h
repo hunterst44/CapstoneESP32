@@ -23,7 +23,8 @@
 #define NUMSENSORS 4       //NUmber of sensors
 #define ACCPACKSIZE 18     //Size in bytes to send a sample from 1 accelerometer
 #define SOCKPACKSIZE 36   //Total size of packet set to socket client (ACCPACKSIZE * number of sensors)
-#define MOVINGAVGSIZE 5   //Nof samples to include in moving average
+#define MOVINGAVGSIZE 5   //Number samples to include in moving average (decimation)
+#define SAMPLEINC 2       //Number of samples to increment for each decimation calculation
 
 ///************************************
 //          Data Globals
@@ -56,7 +57,7 @@ extern int16_t readAccReg(uint8_t Port, uint8_t r);
 extern void changeI2CPort(uint8_t I2CPort);
 extern int16_t getAxisAcc(int16_t axisHi, int16_t axisLo);
 extern void vectortoBytes(accVector vector, uint8_t sensorIndex);
-extern accVector movingAvg(uint8_t vecIndex);
+extern void cubicSpline(uint8_t senseIndex);
 
 //**********************************
 //           WiFI Server Globals

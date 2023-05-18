@@ -11,7 +11,7 @@ void getAccAxes(uint8_t Port)   -- Controls flow of the sensor reading
             void changeI2CPort(uint8_t I2CPort) -- sets I2C port on multiplexor     
     int16_t getAxisAcc(int16_t axisHi, int16_t axisLo)  --  Create acceleration vector from raw bits (incl time data)
 
-accVector movingAvg(uint8_t vecIndex) -- Averages three samples to create a moving average vector
+accVector decimation(uint8_t vecIndex) -- Averages three samples to create a moving average vector
 vectortoBytes(accVector vector, uint8_t sensorIndex) -- makes byte array for TX
 
 */
@@ -69,7 +69,7 @@ accVector getAccAxes(uint8_t Port) {
     #endif /*DEBUG*/
 
     //Get timer value
-    accVector.XT = (int32_t)timerRead(timer1);
+    accVector.XT = (int32_t)timerReadMicros(timer1);
 
       // if (tdxCount == 0 && Port == 1) {
       //   tdxCount++;
@@ -118,7 +118,7 @@ accVector getAccAxes(uint8_t Port) {
     #endif /*DEBUG*/
 
     //Get timer value
-    accVector.YT = (int32_t)timerRead(timer1);
+    accVector.YT = (int32_t)timerReadMicros(timer1);
 
     #ifdef DEBUG
       Serial.print("accVector.YT: ");
@@ -154,7 +154,7 @@ accVector getAccAxes(uint8_t Port) {
     #endif /*DEBUG*/
 
     //Get timer value
-    accVector.ZT = (int32_t)timerRead(timer1);
+    accVector.ZT = (int32_t)timerReadMicros(timer1);
 
     #ifdef DEBUG
       Serial.print("accVector.ZT: ");
@@ -403,36 +403,48 @@ void vectortoBytes(accVector vector, uint8_t sensorIndex) {
 
 
 /********************************************
- * vectortoBytes(accVector vector)
+ * decimation(uint8_t vecIndex)
 *********************************************/
-accVector movingAvg(uint8_t vecIndex) {
-  //ACC Values
-  accVector movingAvgVect;
-  //Floats to hold intermediate values
-  float Xholder = 0;
-  float Yholder = 0;
-  float Zholder = 0;
-  //Loop through values to get total
-  for (int i =0; i < NUMSENSORS; i++) {
-    Xholder += (float)accVecArray[vecIndex][i].XAcc;
-    Yholder += (float)accVecArray[vecIndex][i].YAcc; 
-    Zholder += (float)accVecArray[vecIndex][i].ZAcc;   
+void cubicSpline(uint8_t senseIndex) {
+  //TODO 
+  //Figure out how to reduce size of time data - float?
+  //Use for loops to build matrix
+
+
+  //find the functions based on data
+  //c = A^-1 * b
+  float cubicSplineMatrix[16][16];   //Matrix (A) to hold the equation x values of spline functions (time values)
+  float cubicSplineAccVector[16];    //Vector (b) to hold the equation solutions
+  float cublicSplineCoeff[16];       //Vector (c) to hold the equation coefficients
+
+  //X Axis
+  //Equation 1 - first row of A
+  cubicSplineMatrix[0][0] =  pow(3.0, (double)accVecArray[senseIndex][0].XT);
+  cubicSplineMatrix[0][1] =  pow(2.0, (double)accVecArray[senseIndex][0].XT);
+  cubicSplineMatrix[0][2] =  (double)accVecArray[senseIndex][0].XT;
+  cubicSplineMatrix[0][3] =  1.0;
+  for (int i = 0; i > 16; i++) {
+    cubicSplineMatrix[0][i] = 0;
   }
-  //divide by the number of items in the moving average
-  Xholder = Xholder/ MOVINGAVGSIZE;
-  Yholder = Yholder/ MOVINGAVGSIZE;
-  Zholder = Zholder/ MOVINGAVGSIZE;
 
-  movingAvgVect.XAcc = (uint16_t)round(Xholder);
-  movingAvgVect.YAcc = (uint16_t)round(Yholder);
-  movingAvgVect.ZAcc = (uint16_t)round(Zholder);
+  //Equation 2 - second row of A
+  cubicSplineMatrix[1][0] =  pow(3.0, (double)accVecArray[senseIndex][1].XT);
+  cubicSplineMatrix[1][1] =  pow(2.0, (double)accVecArray[senseIndex][1].XT);
+  cubicSplineMatrix[1][2] =  (double)accVecArray[senseIndex][1].XT;
+  cubicSplineMatrix[1][3] =  1.0;
+  for (int i = 0; i > 16; i++) {
+    cubicSplineMatrix[1][i] = 0;
+  }
 
-  //TODO calculate times and interpolated ACC values
-  movingAvgVect.XT = accVecArray[vecIndex][0].XT;
-  movingAvgVect.YT = accVecArray[vecIndex][0].YT;
-  movingAvgVect.ZT = accVecArray[vecIndex][0].ZT;
 
-  return movingAvgVect;
+
+
+  //Solve for time Tsn
+  //Write to bytes - vectortoBytes(accVector vector)
+
+  
+
+
 }
 
 /*
