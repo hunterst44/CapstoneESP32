@@ -62,18 +62,18 @@ accVector getAccAxes(uint8_t Port) {
       Serial.println(accVector.XAcc, DEC);
     #endif /*DEBUG*/
 
-    //Get timer value
-    accVector.XT = (int32_t)timerRead(timer1);
-      Serial.print("accVector.XT: ");
-      Serial.println(accVector.XT);
+    // //Get timer value
+    // accVector.XT = (int32_t)timerRead(timer1);
+    //   Serial.print("accVector.XT: ");
+    //   Serial.println(accVector.XT);
 
-    #ifdef DEBUG
-      Serial.print("accVector.XT: ");
-      Serial.println(accVector.XT);
-      Serial.print("timerReadMicros(timer1): ");
-      Serial.print(timerReadMicros(timer1));
-      Serial.println();
-    #endif /*DEBUG*/
+    // #ifdef DEBUG
+    //   Serial.print("accVector.XT: ");
+    //   Serial.println(accVector.XT);
+    //   Serial.print("timerReadMicros(timer1): ");
+    //   Serial.print(timerReadMicros(timer1));
+    //   Serial.println();
+    // #endif /*DEBUG*/
 
     //Get Y register values
     //YHi
@@ -100,19 +100,19 @@ accVector getAccAxes(uint8_t Port) {
       Serial.println(accVector.YAcc, DEC);
     #endif /*DEBUG*/
 
-    //Get timer value
-    accVector.YT = (int32_t)timerRead(timer1);
+    // //Get timer value
+    // accVector.YT = (int32_t)timerRead(timer1);
       
-      Serial.print("accVector.YT: ");
-      Serial.println(accVector.YT);
+    //   Serial.print("accVector.YT: ");
+    //   Serial.println(accVector.YT);
 
-    #ifdef DEBUG
-      Serial.print("accVector.YT: ");
-      Serial.println(accVector.YT);
-      Serial.print("timerReadMicros(timer1): ");
-      Serial.print(timerReadMicros(timer1));
-      Serial.println();
-    #endif /*DEBUG*/
+    // #ifdef DEBUG
+    //   Serial.print("accVector.YT: ");
+    //   Serial.println(accVector.YT);
+    //   Serial.print("timerReadMicros(timer1): ");
+    //   Serial.print(timerReadMicros(timer1));
+    //   Serial.println();
+    // #endif /*DEBUG*/
 
     //Get Z register values
     //Zi  
@@ -139,18 +139,18 @@ accVector getAccAxes(uint8_t Port) {
       Serial.println(accVector.ZAcc, DEC);
     #endif /*DEBUG*/
 
-    //Get timer value
-    accVector.ZT = (int32_t)timerRead(timer1);
-      Serial.print("accVector.ZT: ");
-      Serial.println(accVector.ZT);
+    // //Get timer value
+    // accVector.ZT = (int32_t)timerRead(timer1);
+    //   Serial.print("accVector.ZT: ");
+    //   Serial.println(accVector.ZT);
 
-    #ifdef DEBUG
-      Serial.print("accVector.ZT: ");
-      Serial.println(accVector.ZT);
-      Serial.print("timerReadMicros(timer1): ");
-      Serial.print(timerReadMicros(timer1));
-      Serial.println();
-    #endif /*DEBUG*/
+    // #ifdef DEBUG
+    //   Serial.print("accVector.ZT: ");
+    //   Serial.println(accVector.ZT);
+    //   Serial.print("timerReadMicros(timer1): ");
+    //   Serial.print(timerReadMicros(timer1));
+    //   Serial.println();
+    // #endif /*DEBUG*/
 
     return accVector;
 }
@@ -308,53 +308,53 @@ void vectortoBytes(accVector vector, uint8_t sensorIndex) {
     Serial.println();
   #endif /*DEBUG*/
 
-  int32_t XTTmp = vector.XT;
-  char* XTBytes = (char*) &XTTmp;
+  // int32_t XTTmp = vector.XT;
+  // char* XTBytes = (char*) &XTTmp;
   
-  #ifdef DEBUG
-    Serial.print("sizeof XTBytes: ");
-    Serial.println(sizeof(XTBytes), DEC);
-    Serial.print(XTBytes[0], HEX);
-    Serial.print(", ");
-    Serial.print(XTBytes[1], HEX);
-    Serial.print(", ");
-    Serial.print(XTBytes[2], HEX);
-    Serial.print(", ");
-    Serial.print(XTBytes[3], HEX);
-    Serial.println();
-  #endif /*DEBUG*/
+  // #ifdef DEBUG
+  //   Serial.print("sizeof XTBytes: ");
+  //   Serial.println(sizeof(XTBytes), DEC);
+  //   Serial.print(XTBytes[0], HEX);
+  //   Serial.print(", ");
+  //   Serial.print(XTBytes[1], HEX);
+  //   Serial.print(", ");
+  //   Serial.print(XTBytes[2], HEX);
+  //   Serial.print(", ");
+  //   Serial.print(XTBytes[3], HEX);
+  //   Serial.println();
+  // #endif /*DEBUG*/
 
-  int32_t YTTmp = vector.YT;
-  char* YTBytes = (char*) &YTTmp;
+  // int32_t YTTmp = vector.YT;
+  // char* YTBytes = (char*) &YTTmp;
   
-  #ifdef DEBUG
-    Serial.print("sizeof YTBytes: ");
-    Serial.println(sizeof(YTBytes), DEC);
-    Serial.print(YTBytes[0], HEX);
-    Serial.print(", ");
-    Serial.print(YTBytes[1], HEX);
-    Serial.print(", ");
-    Serial.print(YTBytes[2], HEX);
-    Serial.print(", ");
-    Serial.print(YTBytes[3], HEX);
-    Serial.println();
-  #endif /*DEBUG*/
+  // #ifdef DEBUG
+  //   Serial.print("sizeof YTBytes: ");
+  //   Serial.println(sizeof(YTBytes), DEC);
+  //   Serial.print(YTBytes[0], HEX);
+  //   Serial.print(", ");
+  //   Serial.print(YTBytes[1], HEX);
+  //   Serial.print(", ");
+  //   Serial.print(YTBytes[2], HEX);
+  //   Serial.print(", ");
+  //   Serial.print(YTBytes[3], HEX);
+  //   Serial.println();
+  // #endif /*DEBUG*/
 
-  int32_t ZTTmp = vector.ZT;
-  char* ZTBytes = (char*) &ZTTmp;
+  // int32_t ZTTmp = vector.ZT;
+  // char* ZTBytes = (char*) &ZTTmp;
 
-  #ifdef DEBUG
-    Serial.print("sizeof ZTBytes: ");
-    Serial.println(sizeof(ZTBytes), DEC);
-    Serial.print(ZTBytes[0], HEX);
-    Serial.print(", ");
-    Serial.print(ZTBytes[1], HEX);
-    Serial.print(", ");
-    Serial.print(ZTBytes[2], HEX);
-    Serial.print(", ");
-    Serial.print(ZTBytes[3], HEX);
-    Serial.println();
-  #endif /*DEBUG*/
+  // #ifdef DEBUG
+  //   Serial.print("sizeof ZTBytes: ");
+  //   Serial.println(sizeof(ZTBytes), DEC);
+  //   Serial.print(ZTBytes[0], HEX);
+  //   Serial.print(", ");
+  //   Serial.print(ZTBytes[1], HEX);
+  //   Serial.print(", ");
+  //   Serial.print(ZTBytes[2], HEX);
+  //   Serial.print(", ");
+  //   Serial.print(ZTBytes[3], HEX);
+  //   Serial.println();
+  // #endif /*DEBUG*/
   
   sensorIndex = sensorIndex*ACCPACKSIZE;
   bytes[0 + (sensorIndex)] = XAccBytes[0];
@@ -364,20 +364,20 @@ void vectortoBytes(accVector vector, uint8_t sensorIndex) {
   bytes[4 + (sensorIndex)] = ZAccBytes[0];
   bytes[5 + (sensorIndex)] = ZAccBytes[1];
 
-  bytes[6 + (sensorIndex)] = XTBytes[0];
-  bytes[7 + (sensorIndex)] = XTBytes[1];
-  bytes[8 + (sensorIndex)] = XTBytes[2];
-  bytes[9 + (sensorIndex)] = XTBytes[3];
+  // // bytes[6 + (sensorIndex)] = XTBytes[0];
+  // // bytes[7 + (sensorIndex)] = XTBytes[1];
+  // // bytes[8 + (sensorIndex)] = XTBytes[2];
+  // // bytes[9 + (sensorIndex)] = XTBytes[3];
 
-  bytes[10 + (sensorIndex)] = YTBytes[0];
-  bytes[11 + (sensorIndex)] = YTBytes[1];
-  bytes[12 + (sensorIndex)] = YTBytes[2];
-  bytes[13 + (sensorIndex)] = YTBytes[3];
+  // // bytes[10 + (sensorIndex)] = YTBytes[0];
+  // // bytes[11 + (sensorIndex)] = YTBytes[1];
+  // // bytes[12 + (sensorIndex)] = YTBytes[2];
+  // // bytes[13 + (sensorIndex)] = YTBytes[3];
 
-  bytes[14 + (sensorIndex)] = ZTBytes[0];
-  bytes[15 + (sensorIndex)] = ZTBytes[1];
-  bytes[16 + (sensorIndex)] = ZTBytes[2];
-  bytes[17 + (sensorIndex)] = ZTBytes[3];
+  // // bytes[14 + (sensorIndex)] = ZTBytes[0];
+  // // bytes[15 + (sensorIndex)] = ZTBytes[1];
+  // // bytes[16 + (sensorIndex)] = ZTBytes[2];
+  // // bytes[17 + (sensorIndex)] = ZTBytes[3];
 
 #ifdef DEBUG
   Serial.println();
@@ -414,11 +414,6 @@ accVector movingAvg(uint8_t vecIndex) {
   movingAvgVect.XAcc = (uint16_t)round(Xholder);
   movingAvgVect.YAcc = (uint16_t)round(Yholder);
   movingAvgVect.ZAcc = (uint16_t)round(Zholder);
-
-  //TODO calculate times and interpolated ACC values
-  movingAvgVect.XT = accVecArray[vecIndex][0].XT;
-  movingAvgVect.YT = accVecArray[vecIndex][0].YT;
-  movingAvgVect.ZT = accVecArray[vecIndex][0].ZT;
 
   return movingAvgVect;
 }
