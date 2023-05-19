@@ -398,32 +398,41 @@ void vectortoBytes(accVector vector, uint8_t sensorIndex) {
 
 
 /********************************************
- * vectortoBytes(accVector vector)
+ * movingAvg(uint8_t sensorIndex)
 *********************************************/
-// accVector movingAvg(uint8_t vecIndex) {
-//   //ACC Values
-//   accVector movingAvgVect;
-//   //Floats to hold intermediate values
-//   float Xholder = 0;
-//   float Yholder = 0;
-//   float Zholder = 0;
-//   //Loop through values to get total
-//   for (int i =0; i < NUMSENSORS; i++) {
-//     Xholder += (float)accVecArray[vecIndex][i].XAcc;
-//     Yholder += (float)accVecArray[vecIndex][i].YAcc; 
-//     Zholder += (float)accVecArray[vecIndex][i].ZAcc;   
-//   }
-//   //divide by the number of items in the moving average
-//   Xholder = Xholder/ MOVINGAVGSIZE;
-//   Yholder = Yholder/ MOVINGAVGSIZE;
-//   Zholder = Zholder/ MOVINGAVGSIZE;
+accVector movingAvg(uint8_t sensorIndex) {
+  //ACC Values
+  accVector movingAvgVect;
+  //Floats to hold intermediate values
+  float Xholder = 0;
+  float Yholder = 0;
+  float Zholder = 0;
+  //Loop through values to get total
+  for (int i =0; i < MOVINGAVGSIZE; i++) {
+    Xholder += (float)accVecArray[sensorIndex][i].XAcc;
+    Yholder += (float)accVecArray[sensorIndex][i].YAcc; 
+    Zholder += (float)accVecArray[sensorIndex][i].ZAcc;   
+  }
+  //divide by the number of items in the moving average
+  Xholder = Xholder/ MOVINGAVGSIZE;
+  if (Xholder < ZEROTHRES && Xholder > -ZEROTHRES) {
+    Xholder = 0.0;
+  }
+  Yholder = Yholder/ MOVINGAVGSIZE;
+  if (Yholder < ZEROTHRES && Yholder > -ZEROTHRES) {
+    Yholder = 0.0;
+  }
+  Zholder = Zholder/ MOVINGAVGSIZE;
+  if (Zholder < ZEROTHRES && Zholder > -ZEROTHRES) {
+    Zholder = 0.0;
+  }
 
-//   movingAvgVect.XAcc = (uint16_t)round(Xholder);
-//   movingAvgVect.YAcc = (uint16_t)round(Yholder);
-//   movingAvgVect.ZAcc = (uint16_t)round(Zholder);
+  movingAvgVect.XAcc = (uint16_t)round(Xholder);
+  movingAvgVect.YAcc = (uint16_t)round(Yholder);
+  movingAvgVect.ZAcc = (uint16_t)round(Zholder);
 
-//   return movingAvgVect;
-// }
+  return movingAvgVect;
+}
 
 /*
 MXC4005XC-B Accelerometer I2C requirements:

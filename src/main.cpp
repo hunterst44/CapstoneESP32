@@ -139,13 +139,11 @@ void loop() {
           }
 
           if (sampleCount == MOVINGAVGSIZE) {        //After moving average size of samples (3) filter
-            //accVector AccVectorMAVG[NUMSENSORS];
+            accVector AccVectorMAVG[NUMSENSORS];
             for (int i =0; i < NUMSENSORS; i++) {   //One vector per sensor
-              vectortoBytes(accVecArray[i][sampleCount], i);  //Puts data into byte format for socket TX
-              //AccVectorMAVG[i] = movingAvg(i);     
-
-              //vectortoBytes(AccVectorMAVG[i], i);  //Puts data into byte format for socket TX
-              //vectortoBytes(AccVectorMAVG[1], 1);  //Puts data into byte format for socket TX
+              //vectortoBytes(accVecArray[i][0], i);  //Puts data into byte format for socket TX
+              AccVectorMAVG[i] = movingAvg(i);     
+              vectortoBytes(AccVectorMAVG[i], i);  //Puts data into byte format for socket TX
             }
 
             #ifdef DEBUG
@@ -189,6 +187,7 @@ void loop() {
             Serial.println(TXEnd - TXStart);
 
             vecCount++;  //Increment count - for timing
+            sampleCount = 0;
           }
           if (vecCount == 50) {
             //AccPacketEnd = timerRead(timer1);
