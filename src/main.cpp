@@ -125,10 +125,12 @@ void loop() {
           
           //Get data
           
-          if (sampleCount < MOVINGAVGSIZE) {
+          while (sampleCount < MOVINGAVGSIZE) {
             uint32_t getDataStart = timerReadMicros(timer1);
             accVecArray[0][sampleCount] = getAccAxes(1);  //Gets data from the accelerometer on I2C port 1 (SCL0 /SDA0)
             accVecArray[1][sampleCount] = getAccAxes(2);  //Gets data from the accelerometer on I2C port 2 (SCL1 /SDA1)
+            accVecArray[2][sampleCount] = getAccAxes(1);  //Gets data from the accelerometer on I2C port 1 (SCL0 /SDA0)
+            accVecArray[3][sampleCount] = getAccAxes(2);  //Gets data from the accelerometer on I2C port 2 (SCL1 /SDA1)
 
             uint32_t getDataEnd = timerReadMicros(timer1);
             Serial.print("data Time Micros: ");
@@ -137,57 +139,57 @@ void loop() {
           }
 
           if (sampleCount == MOVINGAVGSIZE) {        //After moving average size of samples (3) filter
-            accVector AccVectorMAVG[NUMSENSORS];
+            //accVector AccVectorMAVG[NUMSENSORS];
             for (int i =0; i < NUMSENSORS; i++) {   //One vector per sensor
-              AccVectorMAVG[i] = movingAvg(i);     
+              vectortoBytes(accVecArray[i][sampleCount], i);  //Puts data into byte format for socket TX
+              //AccVectorMAVG[i] = movingAvg(i);     
 
-              vectortoBytes(AccVectorMAVG[i], i);  //Puts data into byte format for socket TX
+              //vectortoBytes(AccVectorMAVG[i], i);  //Puts data into byte format for socket TX
               //vectortoBytes(AccVectorMAVG[1], 1);  //Puts data into byte format for socket TX
             }
-          }
-
-          #ifdef DEBUG
-            Serial.print("accVector.XAcc: ");
-            Serial.println(accVector.XAcc, DEC);
-            Serial.print("accVector.YAcc: ");
-            Serial.println(accVector.YAcc, DEC);
-            Serial.print("accVector.ZAcc: ");
-            Serial.println(accVector.ZAcc, DEC);
-            Serial.print("accVector.XT: ");
-            Serial.println(accVector.XT, DEC);
-            Serial.print("accVector.YT: ");
-            Serial.println(accVector.YT, DEC);
-            Serial.print("accVector.ZT: ");
-            Serial.println(accVector.ZT, DEC);
-          #endif /*DEBUG*/
-
-          //Write vector byte array to socket
-          uint32_t TXStart = timerReadMicros(timer1);
-          for(int i = 0; i < SOCKPACKSIZE; i++) {
-            client.write(bytes[i]);
-            
-              Serial.print("HEX ");
-              Serial.print(i);
-              Serial.print(": ");
-              Serial.println(bytes[i], HEX);
 
             #ifdef DEBUG
-              Serial.print("DEC ");
-              Serial.print(i);
-              Serial.print(": ");
-              Serial.println(bytes[i], DEC);
-              Serial.print("HEX ");
-              Serial.print(i);
-              Serial.print(": ");
-              Serial.println(bytes[i], HEX);
+              Serial.print("accVector.XAcc: ");
+              Serial.println(accVector.XAcc, DEC);
+              Serial.print("accVector.YAcc: ");
+              Serial.println(accVector.YAcc, DEC);
+              Serial.print("accVector.ZAcc: ");
+              Serial.println(accVector.ZAcc, DEC);
+              Serial.print("accVector.XT: ");
+              Serial.println(accVector.XT, DEC);
+              Serial.print("accVector.YT: ");
+              Serial.println(accVector.YT, DEC);
+              Serial.print("accVector.ZT: ");
+              Serial.println(accVector.ZT, DEC);
             #endif /*DEBUG*/
+
+            //Write vector byte array to socket
+            uint32_t TXStart = timerReadMicros(timer1);
+            for(int i = 0; i < SOCKPACKSIZE; i++) {
+              client.write(bytes[i]);
+              
+                Serial.print("HEX ");
+                Serial.print(i);
+                Serial.print(": ");
+                Serial.println(bytes[i], HEX);
+
+              #ifdef DEBUG
+                Serial.print("DEC ");
+                Serial.print(i);
+                Serial.print(": ");
+                Serial.println(bytes[i], DEC);
+                Serial.print("HEX ");
+                Serial.print(i);
+                Serial.print(": ");
+                Serial.println(bytes[i], HEX);
+              #endif /*DEBUG*/
+            }
+            uint32_t TXEnd = timerReadMicros(timer1);
+            Serial.print("Tx Time Micros: ");
+            Serial.println(TXEnd - TXStart);
+
+            vecCount++;  //Increment count - for timing
           }
-          uint32_t TXEnd = timerReadMicros(timer1);
-          Serial.print("Tx Time Micros: ");
-          Serial.println(TXEnd - TXStart);
-
-          vecCount++;  //Increment count - for timing
-
           if (vecCount == 50) {
             //AccPacketEnd = timerRead(timer1);
             AccPacketEndMicro = timerReadMicros(timer1);

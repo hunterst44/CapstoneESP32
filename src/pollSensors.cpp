@@ -30,6 +30,10 @@ vectortoBytes(accVector vector, uint8_t sensorIndex) -- makes byte array for TX
 
 accVector getAccAxes(uint8_t Port) {
  //Read Axes of Acc1
+
+    Serial.println();
+    Serial.print("accVector getAccAxes(), Port: ");
+    Serial.println(Port, DEC);
   #ifdef DEBUG
     Serial.println();
     Serial.print("accVector getAccAxes()");
@@ -202,6 +206,9 @@ int16_t readAccReg(uint8_t Port, uint8_t r) {
     Wire.requestFrom(MXCI2CADDR, 1, 1);   //Send read request
     while(Wire.available()) {
       regOut = Wire.read();
+
+        Serial.print("Register Output: ");
+        Serial.println(regOut, HEX);
 
       #ifdef DEBUG
         Serial.print("Register Output: ");
@@ -393,30 +400,30 @@ void vectortoBytes(accVector vector, uint8_t sensorIndex) {
 /********************************************
  * vectortoBytes(accVector vector)
 *********************************************/
-accVector movingAvg(uint8_t vecIndex) {
-  //ACC Values
-  accVector movingAvgVect;
-  //Floats to hold intermediate values
-  float Xholder = 0;
-  float Yholder = 0;
-  float Zholder = 0;
-  //Loop through values to get total
-  for (int i =0; i < NUMSENSORS; i++) {
-    Xholder += (float)accVecArray[vecIndex][i].XAcc;
-    Yholder += (float)accVecArray[vecIndex][i].YAcc; 
-    Zholder += (float)accVecArray[vecIndex][i].ZAcc;   
-  }
-  //divide by the number of items in the moving average
-  Xholder = Xholder/ MOVINGAVGSIZE;
-  Yholder = Yholder/ MOVINGAVGSIZE;
-  Zholder = Zholder/ MOVINGAVGSIZE;
+// accVector movingAvg(uint8_t vecIndex) {
+//   //ACC Values
+//   accVector movingAvgVect;
+//   //Floats to hold intermediate values
+//   float Xholder = 0;
+//   float Yholder = 0;
+//   float Zholder = 0;
+//   //Loop through values to get total
+//   for (int i =0; i < NUMSENSORS; i++) {
+//     Xholder += (float)accVecArray[vecIndex][i].XAcc;
+//     Yholder += (float)accVecArray[vecIndex][i].YAcc; 
+//     Zholder += (float)accVecArray[vecIndex][i].ZAcc;   
+//   }
+//   //divide by the number of items in the moving average
+//   Xholder = Xholder/ MOVINGAVGSIZE;
+//   Yholder = Yholder/ MOVINGAVGSIZE;
+//   Zholder = Zholder/ MOVINGAVGSIZE;
 
-  movingAvgVect.XAcc = (uint16_t)round(Xholder);
-  movingAvgVect.YAcc = (uint16_t)round(Yholder);
-  movingAvgVect.ZAcc = (uint16_t)round(Zholder);
+//   movingAvgVect.XAcc = (uint16_t)round(Xholder);
+//   movingAvgVect.YAcc = (uint16_t)round(Yholder);
+//   movingAvgVect.ZAcc = (uint16_t)round(Zholder);
 
-  return movingAvgVect;
-}
+//   return movingAvgVect;
+// }
 
 /*
 MXC4005XC-B Accelerometer I2C requirements:
