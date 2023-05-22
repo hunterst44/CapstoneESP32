@@ -31,6 +31,7 @@ char bytes[SOCKPACKSIZE];
 accVector accVecArray[NUMSENSORS][MOVINGAVGSIZE]; //array of vector arrays 
 //accVector Acc1Vectors[accPacketSize];
 uint8_t sampleCount = 0;    //Counts number of samples for the moving average filter
+uint8_t txCount = 0;
 
 
 //Timer stuff
@@ -116,7 +117,7 @@ void loop() {
           //accVector Acc1Vector;
 
           //Measuring Time
-          AccVecStart = timerRead(timer1);
+          //AccVecStart = timerRead(timer1);
           #ifdef DEBUG
             Serial.print("AccVecStart: ");
             Serial.println(AccVecStart);
@@ -133,11 +134,12 @@ void loop() {
             accVecArray[3][sampleCount] = getAccAxes(2);  //Gets data from the accelerometer on I2C port 2 (SCL1 /SDA1)
 
             uint32_t getDataEnd = timerReadMicros(timer1);
-            Serial.print("data Time Micros: ");
+            Serial.print("Sample Time Micros: ");
             Serial.println(getDataEnd - getDataStart);
             sampleCount++;
           }
-
+          
+          uint32_t MvgAvgStart = timerReadMicros(timer1);
           if (sampleCount == MOVINGAVGSIZE) {        //After moving average size of samples (3) filter
             accVector AccVectorMAVG[NUMSENSORS];
             for (int i =0; i < NUMSENSORS; i++) {   //One vector per sensor
@@ -145,6 +147,9 @@ void loop() {
               AccVectorMAVG[i] = movingAvg(i);     
               vectortoBytes(AccVectorMAVG[i], i);  //Puts data into byte format for socket TX
             }
+            uint32_t MvgAvgEnd = timerReadMicros(timer1);
+            Serial.print("Moving Avg Time Micros: ");
+            Serial.println(MvgAvgEnd - MvgAvgStart);
 
             #ifdef DEBUG
               Serial.print("accVector.XAcc: ");
@@ -166,10 +171,10 @@ void loop() {
             for(int i = 0; i < SOCKPACKSIZE; i++) {
               client.write(bytes[i]);
               
-                Serial.print("HEX ");
+                Serial.print("Byte sent ");
                 Serial.print(i);
                 Serial.print(": ");
-                Serial.println(bytes[i], HEX);
+                Serial.println(bytes[i], DEC);
 
               #ifdef DEBUG
                 Serial.print("DEC ");
@@ -186,33 +191,33 @@ void loop() {
             Serial.print("Tx Time Micros: ");
             Serial.println(TXEnd - TXStart);
 
-            vecCount++;  //Increment count - for timing
+            txCount++;
             sampleCount = 0;
           }
-          if (vecCount == 50) {
-            //AccPacketEnd = timerRead(timer1);
-            AccPacketEndMicro = timerReadMicros(timer1);
-            Serial.print("packet Time Micros: ");
-            Serial.println(AccPacketEndMicro - AccPacketStartMicro);
-            vecCount = 0;
-          } 
+          // if (vecCount == 50) {
+          //   //AccPacketEnd = timerRead(timer1);
+          //   AccPacketEndMicro = timerReadMicros(timer1);
+          //   Serial.print("packet Time Micros: ");
+          //   Serial.println(AccPacketEndMicro - AccPacketStartMicro);
+          //   vecCount = 0;
+          // } 
 
               #ifdef DEBUG
                 Serial.print("socketTestData Sent: ");
                 Serial.println(socketTestData, HEX);
               #endif /*DEBUG*/
 
-              //Timing Tests 
-              AccVectorEnd = timerRead(timer1);
-              AccVectorEndMicro = timerReadMicros(timer1);
+              // //Timing Tests 
+              // AccVectorEnd = timerRead(timer1);
+              // AccVectorEndMicro = timerReadMicros(timer1);
 
-              uint32_t AccVectorTime = AccVectorEnd - AccVecStart;
-              uint32_t AccVectorTimeMicro = AccVectorEndMicro - AccVecStartMicro;
+              // uint32_t AccVectorTime = AccVectorEnd - AccVecStart;
+              // uint32_t AccVectorTimeMicro = AccVectorEndMicro - AccVecStartMicro;
 
-              Serial.print("AccVectorTime: ");
-              Serial.println(AccVectorTime);
-              Serial.print("AccVectorTimeMicro: ");
-              Serial.println(AccVectorTimeMicro);
+              // Serial.print("AccVectorTime: ");
+              // Serial.println(AccVectorTime);
+              // Serial.print("AccVectorTimeMicro: ");
+              // Serial.println(AccVectorTimeMicro);
 
               #ifdef DEBUG
                 Serial.print("AccVectorTime: ");

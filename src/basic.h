@@ -45,6 +45,8 @@ extern hw_timer_t * timer1;
 extern uint8_t I2CPort;
 extern char bytes[SOCKPACKSIZE];
 extern accVector accVecArray[NUMSENSORS][MOVINGAVGSIZE];
+extern uint8_t txCount;
+extern uint8_t sampleCount;
 
 ///************************************
 //          I2C Globals
