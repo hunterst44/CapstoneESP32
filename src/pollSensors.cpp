@@ -228,7 +228,27 @@ int16_t getAxisAcc(int16_t axisHi, int16_t axisLo) {
   #endif /*DEBUG*/
 
     int16_t axisAcc = 0;
-    axisAcc = axisHi << 4;           //High value 
+    if (axisHi > 127) {                  //check for negative values
+        //Serial.println("************************************************************");
+        //Serial.println("************************************************************");
+        //Serial.print("axisHi original: ");
+        //Serial.println(axisHi);
+        axisHi = axisHi - 0x80;          //subtract the sign bit (128)
+        //Serial.print("axisHi modified: ");
+        //Serial.println(axisHi);
+        axisAcc = axisHi << 4;           //High value 
+        //Serial.print("axisHi shifted: ");
+        //Serial.println(axisAcc);
+        axisAcc = axisAcc + (axisLo >> 4);   //Low value
+        axisAcc = axisAcc * -1;          //Multiply by -1
+        //Serial.print("Negative number: ");
+        //Serial.println(axisAcc);
+        //Serial.println("************************************************************");
+        //Serial.println("************************************************************");
+    } else {
+        axisAcc = axisHi << 4;           //High value 
+        axisAcc = axisAcc + (axisLo >> 4);   //Low value
+    }
     
     #ifdef DEBUG
       Serial.print("axisAccHi Shift: ");
