@@ -65,19 +65,6 @@ accVector getAccAxes(uint8_t Port) {
       Serial.println(accVector.XAcc, DEC);
     #endif /*DEBUG*/
 
-    // //Get timer value
-    // accVector.XT = (int32_t)timerRead(timer1);
-    //   Serial.print("accVector.XT: ");
-    //   Serial.println(accVector.XT);
-
-    // #ifdef DEBUG
-    //   Serial.print("accVector.XT: ");
-    //   Serial.println(accVector.XT);
-    //   Serial.print("timerReadMicros(timer1): ");
-    //   Serial.print(timerReadMicros(timer1));
-    //   Serial.println();
-    // #endif /*DEBUG*/
-
     //Get Y register values
     //YHi
     int16_t YHi = readAccReg(Port, 5);
@@ -240,7 +227,7 @@ int16_t getAxisAcc(int16_t axisHi, int16_t axisLo) {
         //Serial.print("axisHi shifted: ");
         //Serial.println(axisAcc);
         axisAcc = axisAcc + (axisLo >> 4);   //Low value
-        axisAcc = axisAcc * -1;          //Multiply by -1
+        axisAcc = axisAcc -2048;          //subtract 2^12 for to convert 12 bit 2's complement to 16 bit signed int
         //Serial.print("Negative number: ");
         //Serial.println(axisAcc);
         //Serial.println("************************************************************");
