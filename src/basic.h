@@ -13,7 +13,7 @@
 // #define AccPort2 2
 // #define AccPort3 3
 // #define AccPort4 4
-#define XOUTHI 0x03      //Registers for Acceleration data output
+#define XOUTHI 0x03      //Registers on MXC400 Accelerometer for data output
 #define XOUTLO 0x04 
 #define YOUTHI 0x05 
 #define YOUTLO 0x06 
