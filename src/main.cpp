@@ -3,9 +3,14 @@ main.cpp
 
 Created May 1, 2023 by Joel Legassie
 Sensor polling is initiated when the ESP32 receives 0xFF from the client and continues until the client closes the connection
-
+Polls NUMSENSORS of sensors in turn to collect a sample of 3 features per sensor (XYZ Axes)
+Each sensor's features take up ACCPACKSIZE bytes (2 bytes per feature)
+Collects MOVINGAVGSIZE number of samples and computes a moving average of them to send to the client
+Any feature values within ZEROTHRES of 0 are rounded to zero
+Sends a packet of SOCKPACKSIZE (ACCPACKSIZE * NUMSENSORS)
 
 */
+
 #include <Arduino.h>
 #include <WiFi.h>
 #include "basic.h"
