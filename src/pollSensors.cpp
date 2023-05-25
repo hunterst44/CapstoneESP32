@@ -30,9 +30,12 @@ vectortoBytes(accVector vector, uint8_t sensorIndex) -- makes byte array for TX
 
 accVector getAccAxes(uint8_t Port) {
  //Read Axes of Acc1
+
+    
   #ifdef DEBUG
     Serial.println();
-    Serial.print("accVector getAccAxes()");
+    Serial.print("accVector getAccAxes(), Port: ");
+    Serial.println(Port, DEC);
   #endif /*DEBUG*/
     
     accVector accVector;
@@ -62,19 +65,6 @@ accVector getAccAxes(uint8_t Port) {
       Serial.println(accVector.XAcc, DEC);
     #endif /*DEBUG*/
 
-    //Get timer value
-    accVector.XT = (int32_t)timerRead(timer1);
-      Serial.print("accVector.XT: ");
-      Serial.println(accVector.XT);
-
-    #ifdef DEBUG
-      Serial.print("accVector.XT: ");
-      Serial.println(accVector.XT);
-      Serial.print("timerReadMicros(timer1): ");
-      Serial.print(timerReadMicros(timer1));
-      Serial.println();
-    #endif /*DEBUG*/
-
     //Get Y register values
     //YHi
     int16_t YHi = readAccReg(Port, 5);
@@ -98,20 +88,6 @@ accVector getAccAxes(uint8_t Port) {
     #ifdef DEBUG
       Serial.print("accVector.YAcc: ");
       Serial.println(accVector.YAcc, DEC);
-    #endif /*DEBUG*/
-
-    //Get timer value
-    accVector.YT = (int32_t)timerRead(timer1);
-      
-      Serial.print("accVector.YT: ");
-      Serial.println(accVector.YT);
-
-    #ifdef DEBUG
-      Serial.print("accVector.YT: ");
-      Serial.println(accVector.YT);
-      Serial.print("timerReadMicros(timer1): ");
-      Serial.print(timerReadMicros(timer1));
-      Serial.println();
     #endif /*DEBUG*/
 
     //Get Z register values
@@ -139,31 +115,27 @@ accVector getAccAxes(uint8_t Port) {
       Serial.println(accVector.ZAcc, DEC);
     #endif /*DEBUG*/
 
-    //Get timer value
-    accVector.ZT = (int32_t)timerRead(timer1);
-      Serial.print("accVector.ZT: ");
-      Serial.println(accVector.ZT);
-
-    #ifdef DEBUG
-      Serial.print("accVector.ZT: ");
-      Serial.println(accVector.ZT);
-      Serial.print("timerReadMicros(timer1): ");
-      Serial.print(timerReadMicros(timer1));
-      Serial.println();
-    #endif /*DEBUG*/
-
     return accVector;
 }
-
 
 /****************************************
  * readAccReg(uint8_t Port, uint8_t r)
 ****************************************/
 
 int16_t readAccReg(uint8_t Port, uint8_t r) {
+    
   #ifdef DEBUG
     Serial.println();
     Serial.println("readAccReg(uint8_t Port, int r)");
+    Serial.println();
+    Serial.print("readAccReg(uint8_t Port, int r), TxCount:");
+    Serial.println(txCount, DEC);
+    Serial.print("sensor:");
+    Serial.println(Port, DEC);
+    Serial.print("sampleCount:");
+    Serial.println(sampleCount, DEC);
+    Serial.print("register:");
+    Serial.println(r, DEC);
   #endif /*DEBUG*/
 
   int16_t regOut = 0;
@@ -241,7 +213,27 @@ int16_t getAxisAcc(int16_t axisHi, int16_t axisLo) {
   #endif /*DEBUG*/
 
     int16_t axisAcc = 0;
-    axisAcc = axisHi << 4;           //High value 
+    if (axisHi > 127) {                  //check for negative values
+        //Serial.println("************************************************************");
+        //Serial.println("************************************************************");
+        //Serial.print("axisHi original: ");
+        //Serial.println(axisHi);
+        axisHi = axisHi - 0x80;          //subtract the sign bit (128)
+        //Serial.print("axisHi modified: ");
+        //Serial.println(axisHi);
+        axisAcc = axisHi << 4;           //High value 
+        //Serial.print("axisHi shifted: ");
+        //Serial.println(axisAcc);
+        axisAcc = axisAcc + (axisLo >> 4);   //Low value
+        axisAcc = axisAcc -2048;          //subtract 2^12 for to convert 12 bit 2's complement to 16 bit signed int
+        //Serial.print("Negative number: ");
+        //Serial.println(axisAcc);
+        //Serial.println("************************************************************");
+        //Serial.println("************************************************************");
+    } else {
+        axisAcc = axisHi << 4;           //High value 
+        axisAcc = axisAcc + (axisLo >> 4);   //Low value
+    }
     
     #ifdef DEBUG
       Serial.print("axisAccHi Shift: ");
@@ -307,54 +299,6 @@ void vectortoBytes(accVector vector, uint8_t sensorIndex) {
     Serial.print(ZAccBytes[1], HEX);
     Serial.println();
   #endif /*DEBUG*/
-
-  int32_t XTTmp = vector.XT;
-  char* XTBytes = (char*) &XTTmp;
-  
-  #ifdef DEBUG
-    Serial.print("sizeof XTBytes: ");
-    Serial.println(sizeof(XTBytes), DEC);
-    Serial.print(XTBytes[0], HEX);
-    Serial.print(", ");
-    Serial.print(XTBytes[1], HEX);
-    Serial.print(", ");
-    Serial.print(XTBytes[2], HEX);
-    Serial.print(", ");
-    Serial.print(XTBytes[3], HEX);
-    Serial.println();
-  #endif /*DEBUG*/
-
-  int32_t YTTmp = vector.YT;
-  char* YTBytes = (char*) &YTTmp;
-  
-  #ifdef DEBUG
-    Serial.print("sizeof YTBytes: ");
-    Serial.println(sizeof(YTBytes), DEC);
-    Serial.print(YTBytes[0], HEX);
-    Serial.print(", ");
-    Serial.print(YTBytes[1], HEX);
-    Serial.print(", ");
-    Serial.print(YTBytes[2], HEX);
-    Serial.print(", ");
-    Serial.print(YTBytes[3], HEX);
-    Serial.println();
-  #endif /*DEBUG*/
-
-  int32_t ZTTmp = vector.ZT;
-  char* ZTBytes = (char*) &ZTTmp;
-
-  #ifdef DEBUG
-    Serial.print("sizeof ZTBytes: ");
-    Serial.println(sizeof(ZTBytes), DEC);
-    Serial.print(ZTBytes[0], HEX);
-    Serial.print(", ");
-    Serial.print(ZTBytes[1], HEX);
-    Serial.print(", ");
-    Serial.print(ZTBytes[2], HEX);
-    Serial.print(", ");
-    Serial.print(ZTBytes[3], HEX);
-    Serial.println();
-  #endif /*DEBUG*/
   
   sensorIndex = sensorIndex*ACCPACKSIZE;
   bytes[0 + (sensorIndex)] = XAccBytes[0];
@@ -363,21 +307,6 @@ void vectortoBytes(accVector vector, uint8_t sensorIndex) {
   bytes[3 + (sensorIndex)] = YAccBytes[1];
   bytes[4 + (sensorIndex)] = ZAccBytes[0];
   bytes[5 + (sensorIndex)] = ZAccBytes[1];
-
-  bytes[6 + (sensorIndex)] = XTBytes[0];
-  bytes[7 + (sensorIndex)] = XTBytes[1];
-  bytes[8 + (sensorIndex)] = XTBytes[2];
-  bytes[9 + (sensorIndex)] = XTBytes[3];
-
-  bytes[10 + (sensorIndex)] = YTBytes[0];
-  bytes[11 + (sensorIndex)] = YTBytes[1];
-  bytes[12 + (sensorIndex)] = YTBytes[2];
-  bytes[13 + (sensorIndex)] = YTBytes[3];
-
-  bytes[14 + (sensorIndex)] = ZTBytes[0];
-  bytes[15 + (sensorIndex)] = ZTBytes[1];
-  bytes[16 + (sensorIndex)] = ZTBytes[2];
-  bytes[17 + (sensorIndex)] = ZTBytes[3];
 
 #ifdef DEBUG
   Serial.println();
@@ -391,9 +320,17 @@ void vectortoBytes(accVector vector, uint8_t sensorIndex) {
 
 
 /********************************************
- * vectortoBytes(accVector vector)
+ * movingAvg(uint8_t sensorIndex)
 *********************************************/
-accVector movingAvg(uint8_t vecIndex) {
+accVector movingAvg(uint8_t sensorIndex) {
+  
+  #ifdef DEBUG
+    Serial.println("movingAvg");
+    Serial.print("TX number: ");
+    Serial.println(txCount, DEC);
+    Serial.println("Sensor: ");
+    Serial.println(sensorIndex, DEC);
+  #endif /*DEBUG*/
   //ACC Values
   accVector movingAvgVect;
   //Floats to hold intermediate values
@@ -401,24 +338,58 @@ accVector movingAvg(uint8_t vecIndex) {
   float Yholder = 0;
   float Zholder = 0;
   //Loop through values to get total
-  for (int i =0; i < NUMSENSORS; i++) {
-    Xholder += (float)accVecArray[vecIndex][i].XAcc;
-    Yholder += (float)accVecArray[vecIndex][i].YAcc; 
-    Zholder += (float)accVecArray[vecIndex][i].ZAcc;   
+  for (int i =0; i < MOVINGAVGSIZE; i++) {
+    Xholder += (float)accVecArray[sensorIndex][i].XAcc;
+    Yholder += (float)accVecArray[sensorIndex][i].YAcc; 
+    Zholder += (float)accVecArray[sensorIndex][i].ZAcc;   
   }
+
+  #ifdef DEBUG
+    Serial.print("Xholder Sum: ");
+    Serial.println(Xholder, DEC);
+    Serial.print("Yholder Sum: ");
+    Serial.println(Yholder, DEC);
+    Serial.print("Zholder Sum: ");
+    Serial.println(Zholder, DEC);
+  #endif /*DEBUG*/
+
   //divide by the number of items in the moving average
-  Xholder = Xholder/ MOVINGAVGSIZE;
+  Xholder = Xholder / MOVINGAVGSIZE;
+  if (Xholder < ZEROTHRES && Xholder > -ZEROTHRES) {
+    Xholder = 0.0;
+  }
   Yholder = Yholder/ MOVINGAVGSIZE;
+  if (Yholder < ZEROTHRES && Yholder > -ZEROTHRES) {
+    Yholder = 0.0;
+  }
   Zholder = Zholder/ MOVINGAVGSIZE;
+  if (Zholder < ZEROTHRES && Zholder > -ZEROTHRES) {
+    Zholder = 0.0;
+  }
 
-  movingAvgVect.XAcc = (uint16_t)round(Xholder);
-  movingAvgVect.YAcc = (uint16_t)round(Yholder);
-  movingAvgVect.ZAcc = (uint16_t)round(Zholder);
+  #ifdef DEBUG
+    Serial.print("Xholder Divided: ");
+    Serial.println(Xholder, DEC);
+    Serial.print("Yholder Divided: ");
+    Serial.println(Yholder, DEC);
+    Serial.print("Zholder Divided: ");
+    Serial.println(Zholder, DEC);
+  #endif /*DEBUG*/
 
-  //TODO calculate times and interpolated ACC values
-  movingAvgVect.XT = accVecArray[vecIndex][0].XT;
-  movingAvgVect.YT = accVecArray[vecIndex][0].YT;
-  movingAvgVect.ZT = accVecArray[vecIndex][0].ZT;
+  movingAvgVect.XAcc = (int16_t)round(Xholder);
+  movingAvgVect.YAcc = (int16_t)round(Yholder);
+  movingAvgVect.ZAcc = (int16_t)round(Zholder);
+
+  #ifdef DEBUG
+    Serial.println(sensorIndex, DEC);
+    Serial.print("movingAvgVect.XAcc: ");
+    Serial.println(movingAvgVect.XAcc, DEC);
+    Serial.print("movingAvgVect.YAcc: ");
+    Serial.println(movingAvgVect.YAcc, DEC);
+    Serial.print("movingAvgVect.ZAcc: ");
+    Serial.println(movingAvgVect.ZAcc, DEC);
+  #endif /*DEBUG*/
+
 
   return movingAvgVect;
 }

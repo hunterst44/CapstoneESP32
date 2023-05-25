@@ -20,10 +20,11 @@
 #define ZOUTHI 0x07 
 #define ZOUTLO 0x08 
 //#define accPacketSize 500     //Size of a unit of acc samples
-#define NUMSENSORS 2       //NUmber of sensors
-#define ACCPACKSIZE 18     //Size in bytes to send a sample from 1 accelerometer
-#define SOCKPACKSIZE 36   //Total size of packet set to socket client (ACCPACKSIZE * number of sensors)
-#define MOVINGAVGSIZE 3   //Nof samples to include in moving average
+#define NUMSENSORS 4       //Number of sensors
+#define ACCPACKSIZE 6     //Size in bytes to send a sample from 1 accelerometer
+#define SOCKPACKSIZE 24   //Total size of packet set to socket client (ACCPACKSIZE * number of sensors)
+#define MOVINGAVGSIZE 5   //Number samples to include in moving average
+#define ZEROTHRES 80.0     //All sensor values between +- of this value are set to zero
 
 ///************************************
 //          Data Globals
@@ -35,15 +36,17 @@ struct accVector {
     int16_t XAcc;
     int16_t YAcc;
     int16_t ZAcc;
-    uint32_t XT;
-    uint32_t YT;
-    uint32_t ZT;
+    // uint32_t XT;
+    // uint32_t YT;
+    // uint32_t ZT;
 };
 
 extern hw_timer_t * timer1;
 extern uint8_t I2CPort;
 extern char bytes[SOCKPACKSIZE];
 extern accVector accVecArray[NUMSENSORS][MOVINGAVGSIZE];
+extern uint8_t txCount;
+extern uint8_t sampleCount;
 
 ///************************************
 //          I2C Globals
@@ -61,5 +64,5 @@ extern accVector movingAvg(uint8_t vecIndex);
 //extern AsyncWebServer server;
 //extern AsyncWebSocket ws;
 
-extern uint8_t socketRXArr[24];
+//extern uint8_t socketRXArr[24];
 extern uint8_t socketDataIn;
