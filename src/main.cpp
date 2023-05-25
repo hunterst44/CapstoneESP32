@@ -170,11 +170,6 @@ void loop() {
             uint32_t TXStart = timerReadMicros(timer1);
             for(int i = 0; i < SOCKPACKSIZE; i++) {
               client.write(bytes[i]);
-              
-                Serial.print("Byte sent ");
-                Serial.print(i);
-                Serial.print(": ");
-                Serial.println(bytes[i], DEC);
 
               #ifdef DEBUG
                 Serial.print("DEC ");
@@ -246,8 +241,8 @@ void loop() {
         }
       }
     //client.stop();
-    Serial.println("Client disconnected");
-    Serial.println();
+    // Serial.println("Client disconnected");
+    // Serial.println();
 
   }
   

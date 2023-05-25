@@ -123,6 +123,10 @@ accVector getAccAxes(uint8_t Port) {
 ****************************************/
 
 int16_t readAccReg(uint8_t Port, uint8_t r) {
+    
+  #ifdef DEBUG
+    Serial.println();
+    Serial.println("readAccReg(uint8_t Port, int r)");
     Serial.println();
     Serial.print("readAccReg(uint8_t Port, int r), TxCount:");
     Serial.println(txCount, DEC);
@@ -132,9 +136,6 @@ int16_t readAccReg(uint8_t Port, uint8_t r) {
     Serial.println(sampleCount, DEC);
     Serial.print("register:");
     Serial.println(r, DEC);
-  #ifdef DEBUG
-    Serial.println();
-    Serial.println("readAccReg(uint8_t Port, int r)");
   #endif /*DEBUG*/
 
   int16_t regOut = 0;
@@ -173,9 +174,6 @@ int16_t readAccReg(uint8_t Port, uint8_t r) {
     Wire.requestFrom(MXCI2CADDR, 1, 1);   //Send read request
     while(Wire.available()) {
       regOut = Wire.read();
-        
-        Serial.print("Register Output: ");
-        Serial.println(regOut, HEX);
 
       #ifdef DEBUG
         Serial.print("Register Output: ");
@@ -325,11 +323,14 @@ void vectortoBytes(accVector vector, uint8_t sensorIndex) {
  * movingAvg(uint8_t sensorIndex)
 *********************************************/
 accVector movingAvg(uint8_t sensorIndex) {
+  
+  #ifdef DEBUG
     Serial.println("movingAvg");
     Serial.print("TX number: ");
     Serial.println(txCount, DEC);
     Serial.println("Sensor: ");
     Serial.println(sensorIndex, DEC);
+  #endif /*DEBUG*/
   //ACC Values
   accVector movingAvgVect;
   //Floats to hold intermediate values
@@ -343,12 +344,14 @@ accVector movingAvg(uint8_t sensorIndex) {
     Zholder += (float)accVecArray[sensorIndex][i].ZAcc;   
   }
 
+  #ifdef DEBUG
     Serial.print("Xholder Sum: ");
     Serial.println(Xholder, DEC);
     Serial.print("Yholder Sum: ");
     Serial.println(Yholder, DEC);
     Serial.print("Zholder Sum: ");
     Serial.println(Zholder, DEC);
+  #endif /*DEBUG*/
 
   //divide by the number of items in the moving average
   Xholder = Xholder / MOVINGAVGSIZE;
@@ -364,28 +367,20 @@ accVector movingAvg(uint8_t sensorIndex) {
     Zholder = 0.0;
   }
 
+  #ifdef DEBUG
     Serial.print("Xholder Divided: ");
     Serial.println(Xholder, DEC);
     Serial.print("Yholder Divided: ");
     Serial.println(Yholder, DEC);
     Serial.print("Zholder Divided: ");
     Serial.println(Zholder, DEC);
+  #endif /*DEBUG*/
 
   movingAvgVect.XAcc = (int16_t)round(Xholder);
   movingAvgVect.YAcc = (int16_t)round(Yholder);
   movingAvgVect.ZAcc = (int16_t)round(Zholder);
 
-    
-    Serial.println(sensorIndex, DEC);
-    Serial.print("movingAvgVect.XAcc: ");
-    Serial.println(movingAvgVect.XAcc, DEC);
-    Serial.print("movingAvgVect.YAcc: ");
-    Serial.println(movingAvgVect.YAcc, DEC);
-    Serial.print("movingAvgVect.ZAcc: ");
-    Serial.println(movingAvgVect.ZAcc, DEC);
-  
   #ifdef DEBUG
-    Serial.print("Sensor: ");
     Serial.println(sensorIndex, DEC);
     Serial.print("movingAvgVect.XAcc: ");
     Serial.println(movingAvgVect.XAcc, DEC);
