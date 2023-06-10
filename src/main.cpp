@@ -133,10 +133,12 @@ void loop() {
           
           while (sampleCount < MOVINGAVGSIZE) {
             uint32_t getDataStart = timerReadMicros(timer1);
-            accVecArray[0][sampleCount] = getAccAxes(1);  //Gets data from the accelerometer on I2C port 1 (SCL0 /SDA0)
-            accVecArray[1][sampleCount] = getAccAxes(2);  //Gets data from the accelerometer on I2C port 2 (SCL1 /SDA1)
-            accVecArray[2][sampleCount] = getAccAxes(1);  //Gets data from the accelerometer on I2C port 1 (SCL0 /SDA0)
-            accVecArray[3][sampleCount] = getAccAxes(2);  //Gets data from the accelerometer on I2C port 2 (SCL1 /SDA1)
+            for (uint8_t i = 0; i < NUMSENSORS; i++) {
+              accVecArray[i][sampleCount] = getAccAxes(i+1);  //Gets data from the accelerometer on I2C port 1 (SCL0 /SDA0)
+              // accVecArray[1][sampleCount] = getAccAxes(2);  //Gets data from the accelerometer on I2C port 2 (SCL1 /SDA1)
+              // accVecArray[2][sampleCount] = getAccAxes(1);  //Gets data from the accelerometer on I2C port 1 (SCL0 /SDA0)
+              // accVecArray[3][sampleCount] = getAccAxes(2);  //Gets data from the accelerometer on I2C port 2 (SCL1 /SDA1)
+            }
 
             uint32_t getDataEnd = timerReadMicros(timer1);
             Serial.print("Sample Time Micros: ");
@@ -147,7 +149,7 @@ void loop() {
           uint32_t MvgAvgStart = timerReadMicros(timer1);
           if (sampleCount == MOVINGAVGSIZE) {        //After moving average size of samples (3) filter
             accVector AccVectorMAVG[NUMSENSORS];
-            for (int i =0; i < NUMSENSORS; i++) {   //One vector per sensor
+            for (int i = 0; i < NUMSENSORS; i++) {   //One vector per sensor
               //vectortoBytes(accVecArray[i][0], i);  //Puts data into byte format for socket TX
               AccVectorMAVG[i] = movingAvg(i);     
               vectortoBytes(AccVectorMAVG[i], i);  //Puts data into byte format for socket TX
@@ -194,13 +196,6 @@ void loop() {
             txCount++;
             sampleCount = 0;
           }
-          // if (vecCount == 50) {
-          //   //AccPacketEnd = timerRead(timer1);
-          //   AccPacketEndMicro = timerReadMicros(timer1);
-          //   Serial.print("packet Time Micros: ");
-          //   Serial.println(AccPacketEndMicro - AccPacketStartMicro);
-          //   vecCount = 0;
-          // } 
 
               #ifdef DEBUG
                 Serial.print("socketTestData Sent: ");
