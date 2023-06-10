@@ -225,7 +225,7 @@ int16_t getAxisAcc(int16_t axisHi, int16_t axisLo) {
         //Serial.print("axisHi shifted: ");
         //Serial.println(axisAcc);
         axisAcc = axisAcc + (axisLo >> 4);   //Low value
-        axisAcc = axisAcc -2048;          //subtract 2^12 for to convert 12 bit 2's complement to 16 bit signed int
+        axisAcc = axisAcc -2048;          //subtract 2^12 to convert 12 bit 2's complement to 16 bit signed int
         //Serial.print("Negative number: ");
         //Serial.println(axisAcc);
         //Serial.println("************************************************************");
