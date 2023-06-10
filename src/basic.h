@@ -22,9 +22,9 @@
 //#define accPacketSize 500     //Size of a unit of acc samples
 #define NUMSENSORS 2       //Number of sensors
 #define ACCPACKSIZE 6     //Size in bytes to send a sample from 1 accelerometer
-#define SOCKPACKSIZE 24   //Total size of packet set to socket client (ACCPACKSIZE * number of sensors)
+#define SOCKPACKSIZE 12   //Total size of packet set to socket client (ACCPACKSIZE * number of sensors)
 #define MOVINGAVGSIZE 20   //Number samples to include in moving average [12.5ms * 8 = 100ms]
-#define ZEROTHRES 80.0     //All sensor values between +- of this value are set to zero
+#define ZEROTHRES 50.0     //All sensor values between +- of this value are set to zero
 
 ///************************************
 //          Data Globals
