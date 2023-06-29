@@ -178,6 +178,11 @@ void loop() {
             for(int i = 0; i < SOCKPACKSIZE; i++) {
               client.write(bytes[i]);
 
+              Serial.print("DEC ");
+              Serial.print(i);
+              Serial.print(": ");
+              Serial.println(bytes[i], DEC);
+
               #ifdef DEBUG
                 Serial.print("DEC ");
                 Serial.print(i);
