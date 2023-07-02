@@ -240,7 +240,7 @@ int16_t getAxisAcc(int16_t axisHi, int16_t axisLo) {
       Serial.println(axisAcc, HEX);
     #endif /*DEBUG*/
     
-    axisAcc = axisAcc + (axisLo >> 4);
+    //axisAcc = axisAcc + (axisLo >> 4);
     
     #ifdef DEBUG
       Serial.print("axisAccLo: ");
@@ -266,6 +266,13 @@ void vectortoBytes(accVector vector, uint8_t sensorIndex) {
   
   int16_t XAccTmp = vector.XAcc;
   char* XAccBytes = (char*) &XAccTmp;
+
+  Serial.print("sizeof XAccBytes: ");
+    Serial.println(sizeof(XAccBytes), DEC);
+    Serial.print(XAccBytes[0], DEC);
+    Serial.print(", ");
+    Serial.print(XAccBytes[1], DEC);
+    Serial.println();
   
   #ifdef DEBUG
     Serial.print("sizeof XAccBytes: ");
@@ -379,6 +386,14 @@ accVector movingAvg(uint8_t sensorIndex) {
   movingAvgVect.XAcc = (int16_t)round(Xholder);
   movingAvgVect.YAcc = (int16_t)round(Yholder);
   movingAvgVect.ZAcc = (int16_t)round(Zholder);
+
+    Serial.println(sensorIndex, DEC);
+    Serial.print("movingAvgVect.XAcc: ");
+    Serial.println(movingAvgVect.XAcc, DEC);
+    Serial.print("movingAvgVect.YAcc: ");
+    Serial.println(movingAvgVect.YAcc, DEC);
+    Serial.print("movingAvgVect.ZAcc: ");
+    Serial.println(movingAvgVect.ZAcc, DEC);
 
   #ifdef DEBUG
     Serial.println(sensorIndex, DEC);
