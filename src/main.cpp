@@ -87,6 +87,7 @@ void setup() {
   Serial.println("Connected to the WiFi Network");
   Serial.println(WiFi.localIP());
   wifiServer.begin();
+  server.begin();  //server for OTA
 
   //Start the timer
   timer1 = timerBegin(0, 10, true);
