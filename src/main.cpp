@@ -18,6 +18,11 @@ Sends a packet of SOCKPACKSIZE (ACCPACKSIZE * NUMSENSORS)
 #include <stdlib.h>
 #include "secrets.h"
 #include <math.h>
+#include <AsyncElegantOTA.h>
+#include <ESPAsyncWebServer.h>
+
+// Create AsyncWebServer object on port 80
+AsyncWebServer server(4000);
 
 //Globals
 uint8_t I2CPort = 0;
@@ -65,6 +70,8 @@ void setup() {
     Serial.println("I am alive!");
   #endif /*DEBUG*/
 
+  AsyncElegantOTA.begin(&server);    // Start ElegantOTA
+
   WiFi.begin(ssid, password);
   uint8_t wifiAttempts = 0;
   while(WiFi.status() != WL_CONNECTED)  {
@@ -80,6 +87,8 @@ void setup() {
   Serial.println("Connected to the WiFi Network");
   Serial.println(WiFi.localIP());
   wifiServer.begin();
+  server.begin();  //server for OTA
+  Serial.println("Started OTA server");
 
   //Start the timer
   timer1 = timerBegin(0, 10, true);

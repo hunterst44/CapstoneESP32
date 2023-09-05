@@ -31,6 +31,9 @@ vectortoBytes(accVector vector, uint8_t sensorIndex) -- makes byte array for TX
 accVector getAccAxes(uint8_t Port) {
  //Read Axes of Acc1
 
+  // Serial.println();
+  // Serial.print("accVector getAccAxes(), Port: ");
+  // Serial.println(Port, DEC);
     
   #ifdef DEBUG
     Serial.println();
@@ -44,6 +47,8 @@ accVector getAccAxes(uint8_t Port) {
     //XHi
     int16_t XHi = readAccReg(Port, 3);
 
+    Serial.print("XHi: ");
+    Serial.println(XHi, DEC);
     #ifdef DEBUG
       Serial.print("XHi: ");
       Serial.println(XHi, DEC);
@@ -52,6 +57,9 @@ accVector getAccAxes(uint8_t Port) {
     //XLo  
     int16_t XLo = readAccReg(Port, 4);
 
+
+    Serial.print("XLo: ");
+    Serial.println(XLo, DEC);
     #ifdef DEBUG
       Serial.print("XLo: ");
       Serial.println(XLo, DEC);
@@ -124,6 +132,20 @@ accVector getAccAxes(uint8_t Port) {
 
 int16_t readAccReg(uint8_t Port, uint8_t r) {
     
+
+    // Serial.println();
+    // Serial.println("readAccReg(uint8_t Port, int r)");
+    // Serial.println();
+    // Serial.print("readAccReg(uint8_t Port, int r), TxCount:");
+    // Serial.println(txCount, DEC);
+    // Serial.print("sensor:");
+    // Serial.println(Port, DEC);
+    // Serial.print("sampleCount:");
+    // Serial.println(sampleCount, DEC);
+    // Serial.print("register:");
+    // Serial.println(r, DEC);
+
+
   #ifdef DEBUG
     Serial.println();
     Serial.println("readAccReg(uint8_t Port, int r)");
@@ -145,6 +167,9 @@ int16_t readAccReg(uint8_t Port, uint8_t r) {
     changeI2CPort(Port);
   }
   
+  // Serial.println("Multiplexor Port selected");
+  // Serial.println("Send Device Address then register address (r)");
+
   #ifdef DEBUG
     Serial.println("Multiplexor Port selected");
     Serial.println("Send Device Address then register address (r)");
@@ -153,6 +178,11 @@ int16_t readAccReg(uint8_t Port, uint8_t r) {
   Wire.beginTransmission(MXCI2CADDR);    //Open TX with start address and stop
   Wire.write(r);                  //Send the register we want to read to the sensor
   
+
+  // Serial.print("r transmitted: ");
+  // Serial.println(r, HEX);
+
+
   #ifdef DEBUG
     Serial.print("r transmitted: ");
     Serial.println(r, HEX);
@@ -160,12 +190,16 @@ int16_t readAccReg(uint8_t Port, uint8_t r) {
 
   uint8_t error = Wire.endTransmission();  //Send a stop
       if (error == 0) {
+        Serial.print("I2C device found at address 0x15\n");
         #ifdef DEBUG
           Serial.print("I2C device found at address 0x15\n");
         #endif /*DEBUG*/
 
       } else {
+          Serial.print("I2C Error: ");
+          Serial.println(error,HEX);
           #ifdef DEBUG
+            
             Serial.print("I2C Error: ");
             Serial.println(error,HEX);
           #endif /*DEBUG*/
@@ -175,6 +209,8 @@ int16_t readAccReg(uint8_t Port, uint8_t r) {
     while(Wire.available()) {
       regOut = Wire.read();
 
+      Serial.print("Register Output: ");
+      Serial.println(regOut, HEX);
       #ifdef DEBUG
         Serial.print("Register Output: ");
         Serial.println(regOut, HEX);
@@ -203,6 +239,14 @@ void changeI2CPort(uint8_t I2CPort) {   //Change the port of the I2C multiplexor
 *********************************************/
 
 int16_t getAxisAcc(int16_t axisHi, int16_t axisLo) {
+
+  // Serial.println();
+  //   Serial.println("getAxisAcc(int16_t axisHi, int16_t axisLo)");
+  //   Serial.print("axisAccHi First: ");
+  //   Serial.println(axisHi, HEX);
+  //   Serial.print("axisAccLo First: ");
+  //   Serial.println(axisLo, HEX);
+
   #ifdef DEBUG
     Serial.println();
     Serial.println("getAxisAcc(int16_t axisHi, int16_t axisLo)");
@@ -242,6 +286,11 @@ int16_t getAxisAcc(int16_t axisHi, int16_t axisLo) {
     
     //axisAcc = axisAcc + (axisLo >> 4);
     
+    // Serial.print("axisAccLo: ");
+    //   Serial.println((axisLo >> 4), HEX);
+    //   Serial.print("axisAcc: ");
+    //   Serial.println(axisAcc, HEX);
+    //   Serial.println();
     #ifdef DEBUG
       Serial.print("axisAccLo: ");
       Serial.println((axisLo >> 4), HEX);
@@ -257,6 +306,9 @@ int16_t getAxisAcc(int16_t axisHi, int16_t axisLo) {
  * vectortoBytes(accVector vector)
 *********************************************/
 void vectortoBytes(accVector vector, uint8_t sensorIndex) {
+  // Serial.println();
+  // Serial.println("VectortoBytes(accVector vector)");
+  
   #ifdef DEBUG
     Serial.println();
     Serial.println("VectortoBytes(accVector vector)");
@@ -267,12 +319,12 @@ void vectortoBytes(accVector vector, uint8_t sensorIndex) {
   int16_t XAccTmp = vector.XAcc;
   char* XAccBytes = (char*) &XAccTmp;
 
-  Serial.print("sizeof XAccBytes: ");
-    Serial.println(sizeof(XAccBytes), DEC);
-    Serial.print(XAccBytes[0], DEC);
-    Serial.print(", ");
-    Serial.print(XAccBytes[1], DEC);
-    Serial.println();
+  // Serial.print("sizeof XAccBytes: ");
+  //   Serial.println(sizeof(XAccBytes), DEC);
+  //   Serial.print(XAccBytes[0], DEC);
+  //   Serial.print(", ");
+  //   Serial.print(XAccBytes[1], DEC);
+  //   Serial.println();
   
   #ifdef DEBUG
     Serial.print("sizeof XAccBytes: ");
@@ -315,6 +367,14 @@ void vectortoBytes(accVector vector, uint8_t sensorIndex) {
   bytes[4 + (sensorIndex)] = ZAccBytes[0];
   bytes[5 + (sensorIndex)] = ZAccBytes[1];
 
+
+// Serial.println();
+//   Serial.print("Bytes: ");
+//   for (int i =0; i < sizeof(bytes); i++) {
+//     Serial.println(bytes[i], HEX);
+//   }
+//   Serial.println();
+
 #ifdef DEBUG
   Serial.println();
   Serial.print("Bytes: ");
@@ -331,6 +391,11 @@ void vectortoBytes(accVector vector, uint8_t sensorIndex) {
 *********************************************/
 accVector movingAvg(uint8_t sensorIndex) {
   
+  // Serial.println("movingAvg");
+  //   Serial.print("TX number: ");
+  //   Serial.println(txCount, DEC);
+  //   Serial.println("Sensor: ");
+  //   Serial.println(sensorIndex, DEC);
   #ifdef DEBUG
     Serial.println("movingAvg");
     Serial.print("TX number: ");
@@ -387,14 +452,22 @@ accVector movingAvg(uint8_t sensorIndex) {
   movingAvgVect.YAcc = (int16_t)round(Yholder);
   movingAvgVect.ZAcc = (int16_t)round(Zholder);
 
-    Serial.println(sensorIndex, DEC);
-    Serial.print("movingAvgVect.XAcc: ");
-    Serial.println(movingAvgVect.XAcc, DEC);
-    Serial.print("movingAvgVect.YAcc: ");
-    Serial.println(movingAvgVect.YAcc, DEC);
-    Serial.print("movingAvgVect.ZAcc: ");
-    Serial.println(movingAvgVect.ZAcc, DEC);
+  //   Serial.println(sensorIndex, DEC);
+  //   Serial.print("movingAvgVect.XAcc: ");
+  //   Serial.println(movingAvgVect.XAcc, DEC);
+  //   Serial.print("movingAvgVect.YAcc: ");
+  //   Serial.println(movingAvgVect.YAcc, DEC);
+  //   Serial.print("movingAvgVect.ZAcc: ");
+  //   Serial.println(movingAvgVect.ZAcc, DEC);
 
+  // Serial.println(sensorIndex, DEC);
+  // Serial.print("movingAvgVect.XAcc: ");
+  // Serial.println(movingAvgVect.XAcc, DEC);
+  // Serial.print("movingAvgVect.YAcc: ");
+  // Serial.println(movingAvgVect.YAcc, DEC);
+  // Serial.print("movingAvgVect.ZAcc: ");
+  // Serial.println(movingAvgVect.ZAcc, DEC);
+  
   #ifdef DEBUG
     Serial.println(sensorIndex, DEC);
     Serial.print("movingAvgVect.XAcc: ");
