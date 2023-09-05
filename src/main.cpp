@@ -22,7 +22,7 @@ Sends a packet of SOCKPACKSIZE (ACCPACKSIZE * NUMSENSORS)
 #include <ESPAsyncWebServer.h>
 
 // Create AsyncWebServer object on port 80
-AsyncWebServer server(80);
+AsyncWebServer server(4000);
 
 //Globals
 uint8_t I2CPort = 0;
@@ -88,6 +88,7 @@ void setup() {
   Serial.println(WiFi.localIP());
   wifiServer.begin();
   server.begin();  //server for OTA
+  Serial.println("Started OTA server");
 
   //Start the timer
   timer1 = timerBegin(0, 10, true);
