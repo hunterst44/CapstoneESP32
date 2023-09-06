@@ -57,7 +57,6 @@ accVector getAccAxes(uint8_t Port) {
     //XLo  
     int16_t XLo = readAccReg(Port, 4);
 
-
     Serial.print("XLo: ");
     Serial.println(XLo, DEC);
     #ifdef DEBUG
