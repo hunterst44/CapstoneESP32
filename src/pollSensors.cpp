@@ -47,8 +47,8 @@ accVector getAccAxes(uint8_t Port) {
     //XHi
     int16_t XHi = readAccReg(Port, 3);
 
-    Serial.print("XHi: ");
-    Serial.println(XHi, DEC);
+    // Serial.print("XHi: ");
+    // Serial.println(XHi, DEC);
     #ifdef DEBUG
       Serial.print("XHi: ");
       Serial.println(XHi, DEC);
@@ -57,14 +57,15 @@ accVector getAccAxes(uint8_t Port) {
     //XLo  
     int16_t XLo = readAccReg(Port, 4);
 
-    Serial.print("XLo: ");
-    Serial.println(XLo, DEC);
+    // Serial.print("XLo: ");
+    // Serial.println(XLo, DEC);
     #ifdef DEBUG
       Serial.print("XLo: ");
       Serial.println(XLo, DEC);
     #endif /*DEBUG*/
 
     //Combine Hi and Lo to get axis value
+    Serial.print("X: ");
     accVector.XAcc = getAxisAcc(XHi, XLo);
 
     #ifdef DEBUG
@@ -90,6 +91,7 @@ accVector getAccAxes(uint8_t Port) {
     #endif /*DEBUG*/
 
     //Combine Hi and Lo to get axis value
+    Serial.print("Y: ");
     accVector.YAcc = getAxisAcc(YHi, YLo);
 
     #ifdef DEBUG
@@ -113,7 +115,7 @@ accVector getAccAxes(uint8_t Port) {
       Serial.print("ZLo: ");
       Serial.println(ZLo, DEC);
     #endif /*DEBUG*/
-
+    Serial.print("Z: ");
     //Combine Hi and Lo to get axis value
     accVector.ZAcc = getAxisAcc(ZHi, ZLo);
 
@@ -189,7 +191,7 @@ int16_t readAccReg(uint8_t Port, uint8_t r) {
 
   uint8_t error = Wire.endTransmission();  //Send a stop
       if (error == 0) {
-        Serial.print("I2C device found at address 0x15\n");
+
         #ifdef DEBUG
           Serial.print("I2C device found at address 0x15\n");
         #endif /*DEBUG*/
@@ -208,8 +210,6 @@ int16_t readAccReg(uint8_t Port, uint8_t r) {
     while(Wire.available()) {
       regOut = Wire.read();
 
-      Serial.print("Register Output: ");
-      Serial.println(regOut, HEX);
       #ifdef DEBUG
         Serial.print("Register Output: ");
         Serial.println(regOut, HEX);
@@ -290,7 +290,15 @@ int16_t getAxisAcc(int16_t axisHi, int16_t axisLo) {
       Serial.println(axisAcc, HEX);
       Serial.println();
     #endif /*DEBUG*/
-    int8_t axisAccScaled = axisAcc / 2;   //Divide 2 byte int by two to fit into 1 byte
+
+    Serial.print("axisAcc: ");
+    Serial.println(axisAcc, DEC);
+    
+    int8_t axisAccScaled = axisAcc / 8;   //Divide 2 byte int by two to fit into 1 byte
+
+    Serial.print("axisAccScaled: ");
+    Serial.println(axisAccScaled, DEC);
+    Serial.println();
 
     return axisAccScaled;                  //Return single byte value
   }

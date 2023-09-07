@@ -80,7 +80,7 @@ void setup() {
     wifiAttempts++;
     //Serial.println(wifiAttempts, DEC);
       //Reset ESP32 after 12 failed connection attempts
-        if (wifiAttempts > 12) {
+        if (wifiAttempts > 5) {
         ESP.restart();
       }
     }
@@ -143,6 +143,8 @@ void loop() {
           while (sampleCount < MOVINGAVGSIZE) {
             uint32_t getDataStart = timerReadMicros(timer1);
             for (uint8_t i = 0; i < NUMSENSORS; i++) {
+              Serial.print("Sensor: ");
+              Serial.println(i, DEC);
               accVecArray[i][sampleCount] = getAccAxes(i+1);  //Gets data from the accelerometer on I2C port 1 (SCL0 /SDA0)
               // accVecArray[1][sampleCount] = getAccAxes(2);  //Gets data from the accelerometer on I2C port 2 (SCL1 /SDA1)
               // accVecArray[2][sampleCount] = getAccAxes(1);  //Gets data from the accelerometer on I2C port 1 (SCL0 /SDA0)
@@ -187,6 +189,11 @@ void loop() {
             for(int i = 0; i < SOCKPACKSIZE; i++) {
               client.write(bytes[i]);
 
+              Serial.print("DEC ");
+              Serial.print(i);
+              Serial.print(": ");
+              Serial.println(bytes[i], DEC);
+
               #ifdef DEBUG
                 Serial.print("DEC ");
                 Serial.print(i);
@@ -201,6 +208,7 @@ void loop() {
             uint32_t TXEnd = timerReadMicros(timer1);
             Serial.print("Tx Time Micros: ");
             Serial.println(TXEnd - TXStart);
+            Serial.println();
 
             txCount++;
             sampleCount = 0;
