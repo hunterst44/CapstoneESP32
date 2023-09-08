@@ -9,6 +9,9 @@ Collects MOVINGAVGSIZE number of samples and computes a moving average of them t
 Any feature values within ZEROTHRES of 0 are rounded to zero
 Sends a packet of SOCKPACKSIZE (ACCPACKSIZE * NUMSENSORS)
 
+Over the air updates - you can upload an firmware.bin file to <ESP32 IP Address>:4040/update
+Note ESPAsyncWebServer is required for the elegant OTA library, but is not used for sending sensor data to the client
+
 */
 
 #include <Arduino.h>
@@ -139,7 +142,6 @@ void loop() {
           AccVecStartMicro = timerReadMicros(timer1);
           
           //Get data
-          
           while (sampleCount < MOVINGAVGSIZE) {
             uint32_t getDataStart = timerReadMicros(timer1);
             for (uint8_t i = 0; i < NUMSENSORS; i++) {
@@ -184,10 +186,15 @@ void loop() {
               Serial.println(accVector.ZT, DEC);
             #endif /*DEBUG*/
 
+
+
+
             //Write vector byte array to socket
             uint32_t TXStart = timerReadMicros(timer1);
+            uint8_t bytesSent = 0;
             for(int i = 0; i < SOCKPACKSIZE; i++) {
-              client.write(bytes[i]);
+              uint8_t byte = client.write(bytes[i]);
+              bytesSent += byte;
 
               Serial.print("DEC ");
               Serial.print(i);
@@ -205,6 +212,9 @@ void loop() {
                 Serial.println(bytes[i], HEX);
               #endif /*DEBUG*/
             }
+              Serial.print("Bytes sent: ");
+              Serial.println(bytesSent, DEC);
+
             uint32_t TXEnd = timerReadMicros(timer1);
             Serial.print("Tx Time Micros: ");
             Serial.println(TXEnd - TXStart);
