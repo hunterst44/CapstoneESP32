@@ -25,6 +25,7 @@
 #define SOCKPACKSIZE 6   //Total size of packet set to socket client (ACCPACKSIZE * number of sensors)
 #define MOVINGAVGSIZE 5   //Number samples to include in moving average [12.5ms * 8 = 100ms]
 #define ZEROTHRES 18.0     //All sensor values between +- of this value are set to zero
+#define RXMODE "byteRx"
 
 ///************************************
 //          Data Globals

@@ -65,7 +65,7 @@ accVector getAccAxes(uint8_t Port) {
     #endif /*DEBUG*/
 
     //Combine Hi and Lo to get axis value
-    Serial.print("X: ");
+    //Serial.print("X: ");
     accVector.XAcc = getAxisAcc(XHi, XLo);
 
     #ifdef DEBUG
@@ -91,7 +91,7 @@ accVector getAccAxes(uint8_t Port) {
     #endif /*DEBUG*/
 
     //Combine Hi and Lo to get axis value
-    Serial.print("Y: ");
+    //Serial.print("Y: ");
     accVector.YAcc = getAxisAcc(YHi, YLo);
 
     #ifdef DEBUG
@@ -115,7 +115,7 @@ accVector getAccAxes(uint8_t Port) {
       Serial.print("ZLo: ");
       Serial.println(ZLo, DEC);
     #endif /*DEBUG*/
-    Serial.print("Z: ");
+    //axisAccSerial.print("Z: ");
     //Combine Hi and Lo to get axis value
     accVector.ZAcc = getAxisAcc(ZHi, ZLo);
 
@@ -291,14 +291,14 @@ int16_t getAxisAcc(int16_t axisHi, int16_t axisLo) {
       Serial.println();
     #endif /*DEBUG*/
 
-    Serial.print("axisAcc: ");
-    Serial.println(axisAcc, DEC);
+    // Serial.print("axisAcc: ");
+    // Serial.println(axisAcc, DEC);
     
     int8_t axisAccScaled = axisAcc / 8;   //Divide 2 byte int by two to fit into 1 byte
 
-    Serial.print("axisAccScaled: ");
-    Serial.println(axisAccScaled, DEC);
-    Serial.println();
+    //Serial.print("axisAccScaled: ");
+    //Serial.println(axisAccScaled, DEC);
+    //Serial.println();
 
     return axisAccScaled;                  //Return single byte value
   }

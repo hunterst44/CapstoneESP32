@@ -145,8 +145,8 @@ void loop() {
           while (sampleCount < MOVINGAVGSIZE) {
             uint32_t getDataStart = timerReadMicros(timer1);
             for (uint8_t i = 0; i < NUMSENSORS; i++) {
-              Serial.print("Sensor: ");
-              Serial.println(i, DEC);
+              // Serial.print("Sensor: ");
+              // Serial.println(i, DEC);
               accVecArray[i][sampleCount] = getAccAxes(i+1);  //Gets data from the accelerometer on I2C port 1 (SCL0 /SDA0)
               // accVecArray[1][sampleCount] = getAccAxes(2);  //Gets data from the accelerometer on I2C port 2 (SCL1 /SDA1)
               // accVecArray[2][sampleCount] = getAccAxes(1);  //Gets data from the accelerometer on I2C port 1 (SCL0 /SDA0)
@@ -186,11 +186,11 @@ void loop() {
               Serial.println(accVector.ZT, DEC);
             #endif /*DEBUG*/
 
+          uint32_t TXStart = timerReadMicros(timer1);
+          if (RXMODE == "byteRx") {
+            Serial.print("Byte Rx Mode");
+            //Write vector byte array to socket one byte at a time
 
-
-
-            //Write vector byte array to socket
-            uint32_t TXStart = timerReadMicros(timer1);
             uint8_t bytesSent = 0;
             for(int i = 0; i < SOCKPACKSIZE; i++) {
               uint8_t byte = client.write(bytes[i]);
@@ -214,6 +214,15 @@ void loop() {
             }
               Serial.print("Bytes sent: ");
               Serial.println(bytesSent, DEC);
+          
+          } else if (RXMODE == "sampleRx") {
+            Serial.print("Sample Rx Mode");
+            //Print the whole packet at once
+              uint8_t byte = client.print(bytes);
+
+              Serial.print("Bytes sent: ");
+              Serial.println(byte, DEC);
+          }
 
             uint32_t TXEnd = timerReadMicros(timer1);
             Serial.print("Tx Time Micros: ");
