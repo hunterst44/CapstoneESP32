@@ -32,8 +32,8 @@ accVector getAccAxes(uint8_t Port) {
  //Read Axes of Acc1
 
   // Serial.println();
-  // Serial.print("accVector getAccAxes(), Port: ");
-  // Serial.println(Port, DEC);
+  Serial.print("accVector getAccAxes(), Port: ");
+  Serial.println(Port, DEC);
     
   #ifdef DEBUG
     Serial.println();
@@ -47,8 +47,6 @@ accVector getAccAxes(uint8_t Port) {
     //XHi
     int16_t XHi = readAccReg(Port, 3);
 
-    // Serial.print("XHi: ");
-    // Serial.println(XHi, DEC);
     #ifdef DEBUG
       Serial.print("XHi: ");
       Serial.println(XHi, DEC);
@@ -57,8 +55,6 @@ accVector getAccAxes(uint8_t Port) {
     //XLo  
     int16_t XLo = readAccReg(Port, 4);
 
-    // Serial.print("XLo: ");
-    // Serial.println(XLo, DEC);
     #ifdef DEBUG
       Serial.print("XLo: ");
       Serial.println(XLo, DEC);
@@ -239,6 +235,11 @@ void changeI2CPort(uint8_t I2CPort) {   //Change the port of the I2C multiplexor
 
 int16_t getAxisAcc(int16_t axisHi, int16_t axisLo) {
 
+  // Serial.println("getAxisAcc(int16_t axisHi, int16_t axisLo)");
+  //   Serial.print("axisAccHi First: ");
+  //   Serial.println(axisHi, DEC);
+  //   Serial.print("axisAccLo First: ");
+  //   Serial.println(axisLo, DEC);
   #ifdef DEBUG
     Serial.println();
     Serial.println("getAxisAcc(int16_t axisHi, int16_t axisLo)");
@@ -250,22 +251,22 @@ int16_t getAxisAcc(int16_t axisHi, int16_t axisLo) {
 
     int16_t axisAcc = 0;
     if (axisHi > 127) {                  //check for negative values
-        //Serial.println("************************************************************");
-        //Serial.println("************************************************************");
-        //Serial.print("axisHi original: ");
-        //Serial.println(axisHi);
+        // Serial.println("************************************************************");
+        // Serial.println("************************************************************");
+        // Serial.print("axisHi original: ");
+        // Serial.println(axisHi);
         axisHi = axisHi - 0x80;          //subtract the sign bit (128)
-        //Serial.print("axisHi modified: ");
-        //Serial.println(axisHi);
+        // Serial.print("axisHi modified: ");
+        // Serial.println(axisHi);
         axisAcc = axisHi << 4;           //High value 
-        //Serial.print("axisHi shifted: ");
-        //Serial.println(axisAcc);
+        // Serial.print("axisHi shifted: ");
+        // Serial.println(axisAcc);
         axisAcc = axisAcc + (axisLo >> 4);   //Low value
         axisAcc = axisAcc -2048;          //subtract 2^12 to convert 12 bit 2's complement to 16 bit signed int
-        //Serial.print("Negative number: ");
-        //Serial.println(axisAcc);
-        //Serial.println("************************************************************");
-        //Serial.println("************************************************************");
+        // Serial.print("Negative number: ");
+        // Serial.println(axisAcc);
+        // Serial.println("************************************************************");
+        // Serial.println("************************************************************");
     } else {
         axisAcc = axisHi << 4;           //High value 
         axisAcc = axisAcc + (axisLo >> 4);   //Low value
@@ -294,11 +295,12 @@ int16_t getAxisAcc(int16_t axisHi, int16_t axisLo) {
     // Serial.print("axisAcc: ");
     // Serial.println(axisAcc, DEC);
     
-    int8_t axisAccScaled = axisAcc / 8;   //Divide 2 byte int by two to fit into 1 byte
+    
+    int8_t axisAccScaled = axisAcc / 16;   //Divide 16 to reduce 12 but signed 12 bit int (+-2047) to a signed 8bit int (+-127)
 
-    //Serial.print("axisAccScaled: ");
-    //Serial.println(axisAccScaled, DEC);
-    //Serial.println();
+    // Serial.print("axisAccScaled: ");
+    // Serial.println(axisAccScaled, DEC);
+    // Serial.println();
 
     return axisAccScaled;                  //Return single byte value
   }
@@ -450,13 +452,13 @@ accVector movingAvg(uint8_t sensorIndex) {
   movingAvgVect.YAcc = (int8_t)round(Yholder);
   movingAvgVect.ZAcc = (int8_t)round(Zholder);
 
-  //   Serial.println(sensorIndex, DEC);
-  //   Serial.print("movingAvgVect.XAcc: ");
-  //   Serial.println(movingAvgVect.XAcc, DEC);
-  //   Serial.print("movingAvgVect.YAcc: ");
-  //   Serial.println(movingAvgVect.YAcc, DEC);
-  //   Serial.print("movingAvgVect.ZAcc: ");
-  //   Serial.println(movingAvgVect.ZAcc, DEC);
+    Serial.println(sensorIndex, DEC);
+    Serial.print("movingAvgVect.XAcc: ");
+    Serial.println(movingAvgVect.XAcc, DEC);
+    Serial.print("movingAvgVect.YAcc: ");
+    Serial.println(movingAvgVect.YAcc, DEC);
+    Serial.print("movingAvgVect.ZAcc: ");
+    Serial.println(movingAvgVect.ZAcc, DEC);
 
   // Serial.println(sensorIndex, DEC);
   // Serial.print("movingAvgVect.XAcc: ");
