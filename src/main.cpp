@@ -24,9 +24,13 @@ Note ESPAsyncWebServer is required for the elegant OTA library, but is not used 
 #include <math.h>
 #include <AsyncElegantOTA.h>
 #include <ESPAsyncWebServer.h>
+#include "Adafruit_VL53L0X.h"
 
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(4000);
+
+//Create time of flight sensor object
+Adafruit_VL53L0X toF = Adafruit_VL53L0X();
 
 //Globals
 uint8_t I2CPort = 0;
@@ -125,9 +129,9 @@ void loop() {
           Serial.println(byteCode, HEX);
         #endif /*DEBUG*/
 
-        if (byteCode == 0xFF) {
-          //Send Acc data
-
+        if (byteCode == 0xFF || byteCode == 0x0F) {  //0xFF is normal case, 0x0F is normal case plus distance
+          uint8_t dist = -1;         //Distance measurement in mm
+          //Send Acc data only
           #ifdef DEBUG
             Serial.println("Start Acc data packet");
           #endif /*DEBUG*/
@@ -159,7 +163,7 @@ void loop() {
             Serial.println(getDataEnd - getDataStart);
             sampleCount++;
           }
-          
+
           uint32_t MvgAvgStart = timerReadMicros(timer1);
           if (sampleCount == MOVINGAVGSIZE) {        //After moving average size of samples (3) filter
             accVector AccVectorMAVG[NUMSENSORS];
@@ -171,6 +175,16 @@ void loop() {
             uint32_t MvgAvgEnd = timerReadMicros(timer1);
             Serial.print("Moving Avg Time Micros: ");
             Serial.println(MvgAvgEnd - MvgAvgStart);
+
+            if (byteCode == 0x0F) {
+              uint32_t getDistStart = timerReadMicros(timer1);
+
+              uint8_t dist = getDist(toF);    //Get a distance measurement from the Tof sensor
+              
+              uint32_t getDistEnd = timerReadMicros(timer1);
+              Serial.print("Moving Avg Time Micros: ");
+              Serial.println(getDistEnd - getDistStart);
+            }
 
             #ifdef DEBUG
               Serial.print("accVector.XAcc: ");
@@ -197,7 +211,7 @@ void loop() {
               uint8_t byte = client.write(bytes[i]);
               bytesSent += byte;
 
-              Serial.print("DEC ");
+              Serial.print("Byte  ");
               Serial.print(i);
               Serial.print(": ");
               Serial.println(bytes[i], DEC);
@@ -212,6 +226,15 @@ void loop() {
                 Serial.print(": ");
                 Serial.println(bytes[i], HEX);
               #endif /*DEBUG*/
+            }
+            if (byteCode == 0x0F && dist != -1) {
+              uint8_t byte = client.write(dist);
+              bytesSent += byte;
+
+              Serial.print("Byte  ");
+              Serial.print(SOCKPACKSIZE + 1);
+              Serial.print(": ");
+              Serial.println(dist, DEC);
             }
               Serial.print("Bytes sent: ");
               Serial.println(bytesSent, DEC);
@@ -274,7 +297,7 @@ void loop() {
                 Serial.print("AccVectorTimeMicro: ");
                 Serial.println(AccVectorTimeMicro);
               #endif /*DEBUG*/
-          }  
+          } 
         }
       }
     //client.stop();

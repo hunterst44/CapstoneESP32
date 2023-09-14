@@ -22,7 +22,7 @@
 //#define accPacketSize 500     //Size of a unit of acc samples
 #define NUMSENSORS 2       //Number of sensors
 #define ACCPACKSIZE 3     //Size in bytes to send a sample from 1 accelerometer
-#define SOCKPACKSIZE 6   //Total size of packet set to socket client (ACCPACKSIZE * number of sensors)
+#define SOCKPACKSIZE 6   //Total size of packet set to socket client (ACCPACKSIZE * number of sensors) 
 #define MOVINGAVGSIZE 5   //Number samples to include in moving average [12.5ms * 8 = 100ms]
 #define ZEROTHRES 18.0     //All sensor values between +- of this value are set to zero
 #define RXMODE "byteRx"
@@ -58,6 +58,7 @@ extern void changeI2CPort(uint8_t I2CPort);
 extern int16_t getAxisAcc(int16_t axisHi, int16_t axisLo);
 extern void vectortoBytes(accVector vector, uint8_t sensorIndex);
 extern accVector movingAvg(uint8_t vecIndex);
+extern uint8_t getDist(Adafruit_VL53L0X toF);
 
 //**********************************
 //           WiFI Server Globals

@@ -22,7 +22,26 @@ vectortoBytes(accVector vector, uint8_t sensorIndex) -- makes byte array for TX
 #include <stdlib.h>
 #include "secrets.h"
 #include <math.h>
+#include "Adafruit_VL53L0X.h"
 
+
+/************************
+ * getDist()
+*************************/
+
+uint8_t getDist(Adafruit_VL53L0X toF) {
+
+  VL53L0X_RangingMeasurementData_t measure;
+
+  toF.rangingTest(&measure, false); // pass in 'true' to get debug data printout!
+
+  uint16_t dist16 = measure.RangeMilliMeter;
+
+  uint8_t dist = (uint8_t) ((dist16) >> 8 );
+
+  return dist;
+
+}
 
 /************************
  * getAccAxes()
