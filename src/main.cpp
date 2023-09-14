@@ -12,6 +12,7 @@ Sends a packet of SOCKPACKSIZE (ACCPACKSIZE * NUMSENSORS)
 Over the air updates - you can upload an firmware.bin file to <ESP32 IP Address>:4040/update
 Note ESPAsyncWebServer is required for the elegant OTA library, but is not used for sending sensor data to the client
 
+//hello
 */
 
 #include <Arduino.h>
