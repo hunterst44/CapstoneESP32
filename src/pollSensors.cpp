@@ -245,6 +245,8 @@ int16_t readAccReg(uint8_t Port, uint8_t r) {
 ****************************************/
 
 void changeI2CPort(uint8_t I2CPort) {   //Change the port of the I2C multiplexor
+  Serial.print("I2CPort: ");
+  Serial.println(I2CPort, DEC);
   Wire.beginTransmission(I2CADDR);
   Wire.write(I2CPort);
   Wire.endTransmission();
