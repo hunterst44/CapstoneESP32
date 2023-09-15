@@ -1,3 +1,5 @@
+#include "Adafruit_VL53L0X.h"
+
 // ----------------------------------------------------------------------------
 // Definition of macros
 // ----------------------------------------------------------------------------
@@ -9,6 +11,7 @@
 #define I2C_SDA 0     //I2C pins
 #define I2C_SCL 1
 #define MXCI2CADDR 0x15   //I2C Address for MXC400 Accelerometer
+#define VL53L0XADDR 0x29  //I2C Address for VL53L0X Time of flight sensor
 // #define AccPort1 1        //Ports for Accelerometer 1 (for multiplexor)
 // #define AccPort2 2
 // #define AccPort3 3

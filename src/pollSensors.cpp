@@ -31,6 +31,12 @@ vectortoBytes(accVector vector, uint8_t sensorIndex) -- makes byte array for TX
 
 uint8_t getDist(Adafruit_VL53L0X toF) {
 
+  Serial.println();
+  Serial.print("Get distance");
+  Serial.println();
+
+  changeI2CPort(5);
+
   VL53L0X_RangingMeasurementData_t measure;
 
   toF.rangingTest(&measure, false); // pass in 'true' to get debug data printout!
@@ -51,8 +57,6 @@ accVector getAccAxes(uint8_t Port) {
  //Read Axes of Acc1
 
   // Serial.println();
-  Serial.print("accVector getAccAxes(), Port: ");
-  Serial.println(Port, DEC);
     
   #ifdef DEBUG
     Serial.println();
@@ -147,7 +151,6 @@ accVector getAccAxes(uint8_t Port) {
 ****************************************/
 
 int16_t readAccReg(uint8_t Port, uint8_t r) {
-    
 
     // Serial.println();
     // Serial.println("readAccReg(uint8_t Port, int r)");
@@ -197,7 +200,6 @@ int16_t readAccReg(uint8_t Port, uint8_t r) {
 
   // Serial.print("r transmitted: ");
   // Serial.println(r, HEX);
-
 
   #ifdef DEBUG
     Serial.print("r transmitted: ");

@@ -51,7 +51,6 @@ accVector accVecArray[NUMSENSORS][MOVINGAVGSIZE]; //array of vector arrays
 uint8_t sampleCount = 0;    //Counts number of samples for the moving average filter
 uint8_t txCount = 0;
 
-
 //Timer stuff
 hw_timer_t * timer1 = NULL;
 
@@ -124,6 +123,9 @@ void loop() {
       while (client.available() > 0) {
         uint8_t byteCode = client.read();
 
+        Serial.print("byteCode: ");
+        Serial.println(byteCode, HEX);
+
         #ifdef DEBUG
           Serial.print("byteCode: ");
           Serial.println(byteCode, HEX);
@@ -182,7 +184,7 @@ void loop() {
               uint8_t dist = getDist(toF);    //Get a distance measurement from the Tof sensor
               
               uint32_t getDistEnd = timerReadMicros(timer1);
-              Serial.print("Moving Avg Time Micros: ");
+              Serial.print("Dist measurement micros: ");
               Serial.println(getDistEnd - getDistStart);
             }
 
