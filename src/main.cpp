@@ -27,10 +27,13 @@ Note ESPAsyncWebServer is required for the elegant OTA library, but is not used 
 #include "Adafruit_VL53L0X.h"
 
 // Create AsyncWebServer object on port 80
-AsyncWebServer server(4000);
+//AsyncWebServer server(4000);
 
 //Create time of flight sensor object
 Adafruit_VL53L0X toF = Adafruit_VL53L0X();
+
+//Structure to hold ToF sensor data
+VL53L0X_RangingMeasurementData_t measure;
 
 //Globals
 uint8_t I2CPort = 0;
@@ -77,7 +80,7 @@ void setup() {
     Serial.println("I am alive!");
   #endif /*DEBUG*/
 
-  AsyncElegantOTA.begin(&server);    // Start ElegantOTA
+  //AsyncElegantOTA.begin(&server);    // Start ElegantOTA
 
   WiFi.begin(ssid, password);
   uint8_t wifiAttempts = 0;
@@ -94,7 +97,7 @@ void setup() {
   Serial.println("Connected to the WiFi Network");
   Serial.println(WiFi.localIP());
   wifiServer.begin();
-  server.begin();  //server for OTA
+  //server.begin();  //server for OTA
   Serial.println("Started OTA server");
 
   //Start the timer
@@ -181,7 +184,20 @@ void loop() {
             if (byteCode == 0x0F) {
               uint32_t getDistStart = timerReadMicros(timer1);
 
-              uint8_t dist = getDist(toF);    //Get a distance measurement from the Tof sensor
+              toF.getSingleRangingMeasurement(&measure, true);
+
+              //TO DO causes ESP32 to crash in VL53L0X_Error VL53L0X_StartMeasurement(VL53L0X_DEV Dev) (file:vl53l0x_api.cpp )
+
+              //uint8_t dist = getDist(toF, measure);    //Get a distance measurement from the Tof sensor
+              uint16_t dist16 = measure.RangeMilliMeter;
+
+              Serial.print("distance: ");
+              Serial.println(dist16, DEC);
+
+              uint8_t dist = (uint8_t) ((dist16) >> 8 );
+
+              Serial.print("distance byte: ");
+              Serial.println(dist, DEC);
               
               uint32_t getDistEnd = timerReadMicros(timer1);
               Serial.print("Dist measurement micros: ");

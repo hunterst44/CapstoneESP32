@@ -61,7 +61,8 @@ extern void changeI2CPort(uint8_t I2CPort);
 extern int16_t getAxisAcc(int16_t axisHi, int16_t axisLo);
 extern void vectortoBytes(accVector vector, uint8_t sensorIndex);
 extern accVector movingAvg(uint8_t vecIndex);
-extern uint8_t getDist(Adafruit_VL53L0X toF);
+extern uint8_t getDist(Adafruit_VL53L0X toF, VL53L0X_RangingMeasurementData_t measure);
+extern VL53L0X_RangingMeasurementData_t measure;
 
 //**********************************
 //           WiFI Server Globals
