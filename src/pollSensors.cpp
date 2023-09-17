@@ -29,30 +29,29 @@ vectortoBytes(accVector vector, uint8_t sensorIndex) -- makes byte array for TX
  * getDist()
 *************************/
 
-uint8_t getDist(Adafruit_VL53L0X toF, VL53L0X_RangingMeasurementData_t measure) {
+// uint8_t getDist(Adafruit_VL53L0X toF) {
 
-  Serial.println();
-  Serial.print("Get distance");
-  Serial.println();
+//   Serial.println();
+//   Serial.print("Get distance");
+//   Serial.println();
 
-  //uint8_t dist = getDist(toF);    //Get a distance measurement from the Tof sensortoF.rangingTest(&measure, false); // pass in 'true' to get debug data printout!
-  toF.getSingleRangingMeasurement(&measure, false);
+//   toF.getSingleRangingMeasurement(&measure, true);
+//   //Wire.begin(I2C_SDA, I2C_SCL);
 
-  uint16_t dist16 = measure.RangeMilliMeter;
+//   //uint8_t dist = getDist(toF, measure);    //Get a distance measurement from the Tof sensor
+//   uint16_t dist16 = measure.RangeMilliMeter;
 
-  Serial.print("distance: ");
-  Serial.println(dist16, DEC);
+//   Serial.print("raw distance: ");
+//   Serial.println(dist16, HEX);
 
-  uint8_t dist = (uint8_t) ((dist16) >> 8 );
+//   uint8_t dist = (uint8_t) ((dist16) >> 8 );
 
-  Serial.print("distance byte: ");
-  Serial.println(dist, DEC);
+//   Serial.print("Scaled istance: ");
+//   Serial.println(dist, HEX);
 
-    
+//   return dist;
 
-  return dist;
-
-}
+// }
 
 /************************
  * getAccAxes()
@@ -74,9 +73,6 @@ accVector getAccAxes(uint8_t Port) {
     //Get X register values
     //XHi
     int16_t XHi = readAccReg(Port, 3);
-
-      Serial.print("XHi: ");
-      Serial.println(XHi, DEC);
 
     #ifdef DEBUG
       Serial.print("XHi: ");
@@ -253,8 +249,8 @@ int16_t readAccReg(uint8_t Port, uint8_t r) {
 ****************************************/
 
 void changeI2CPort(uint8_t I2CPort) {   //Change the port of the I2C multiplexor
-  Serial.print("I2CPort: ");
-  Serial.println(I2CPort, DEC);
+  // Serial.print("I2CPort: ");
+  // Serial.println(I2CPort, DEC);
   Wire.beginTransmission(I2CADDR);
   Wire.write(I2CPort);
   Wire.endTransmission();
@@ -483,13 +479,6 @@ accVector movingAvg(uint8_t sensorIndex) {
   movingAvgVect.YAcc = (int8_t)round(Yholder);
   movingAvgVect.ZAcc = (int8_t)round(Zholder);
 
-    Serial.println(sensorIndex, DEC);
-    Serial.print("movingAvgVect.XAcc: ");
-    Serial.println(movingAvgVect.XAcc, DEC);
-    Serial.print("movingAvgVect.YAcc: ");
-    Serial.println(movingAvgVect.YAcc, DEC);
-    Serial.print("movingAvgVect.ZAcc: ");
-    Serial.println(movingAvgVect.ZAcc, DEC);
 
   // Serial.println(sensorIndex, DEC);
   // Serial.print("movingAvgVect.XAcc: ");

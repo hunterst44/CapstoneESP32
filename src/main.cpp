@@ -27,18 +27,19 @@ Note ESPAsyncWebServer is required for the elegant OTA library, but is not used 
 #include "Adafruit_VL53L0X.h"
 
 // Create AsyncWebServer object on port 80
-//AsyncWebServer server(4000);
+AsyncWebServer server(4000);
 
 //Create time of flight sensor object
 Adafruit_VL53L0X toF = Adafruit_VL53L0X();
 
-//Structure to hold ToF sensor data
-VL53L0X_RangingMeasurementData_t measure;
+// //Structure to hold ToF sensor data
+// VL53L0X_RangingMeasurementData_t measure;
 
 //Globals
 uint8_t I2CPort = 0;
 uint8_t vecCount = 0;  //Count number of samples taken for timing tests
 //uint8_t dataCount = 0;
+uint8_t dist = -1;       //For collecting distance data from VL53L0X
 
 //int16_t Acc1Avg[3];   //XYZ vector
 
@@ -74,13 +75,14 @@ uint32_t AccPacketEndMicro;
 void setup() {
   
   Wire.begin(I2C_SDA, I2C_SCL);
+  toF.begin(0x29,true);
 
   Serial.begin(115200);
   #ifdef DEBUG
     Serial.println("I am alive!");
   #endif /*DEBUG*/
 
-  //AsyncElegantOTA.begin(&server);    // Start ElegantOTA
+  AsyncElegantOTA.begin(&server);    // Start ElegantOTA
 
   WiFi.begin(ssid, password);
   uint8_t wifiAttempts = 0;
@@ -183,20 +185,27 @@ void loop() {
 
             if (byteCode == 0x0F) {
               uint32_t getDistStart = timerReadMicros(timer1);
+          
+             Serial.println();
+              Serial.print("Get distance");
+              Serial.println();
+
+              //Structure to hold ToF sensor data
+              VL53L0X_RangingMeasurementData_t measure;
 
               toF.getSingleRangingMeasurement(&measure, true);
 
-              //TO DO causes ESP32 to crash in VL53L0X_Error VL53L0X_StartMeasurement(VL53L0X_DEV Dev) (file:vl53l0x_api.cpp )
-
-              //uint8_t dist = getDist(toF, measure);    //Get a distance measurement from the Tof sensor
               uint16_t dist16 = measure.RangeMilliMeter;
 
-              Serial.print("distance: ");
-              Serial.println(dist16, DEC);
+              Serial.print("raw distance: ");
+              Serial.println(dist16, HEX);
 
-              uint8_t dist = (uint8_t) ((dist16) >> 8 );
+              dist = (uint8_t) ((dist16) >> 2);   //Divide by 8 to get range of 0 - 2000mm in 8 bits
 
-              Serial.print("distance byte: ");
+              Serial.print("Scaled distance: ");
+              Serial.println(dist, HEX);
+            
+              Serial.print("distance Deximal: ");
               Serial.println(dist, DEC);
               
               uint32_t getDistEnd = timerReadMicros(timer1);
@@ -220,8 +229,8 @@ void loop() {
             #endif /*DEBUG*/
 
           uint32_t TXStart = timerReadMicros(timer1);
-          if (RXMODE == "byteRx") {
-            Serial.print("Byte Rx Mode");
+          // if (RXMODE == "byteRx") {
+            // Serial.print("Byte Rx Mode");
             //Write vector byte array to socket one byte at a time
 
             uint8_t bytesSent = 0;
@@ -244,8 +253,13 @@ void loop() {
                 Serial.print(": ");
                 Serial.println(bytes[i], HEX);
               #endif /*DEBUG*/
-            }
-            if (byteCode == 0x0F && dist != -1) {
+           
+          }
+
+          if (byteCode == 0x0F && dist > 0 && dist < 2000) {
+              Serial.print("Byte code 0x0F send dist ");
+              Serial.print("distance Deximal: ");
+              Serial.println(dist, DEC);
               uint8_t byte = client.write(dist);
               bytesSent += byte;
 
@@ -257,14 +271,14 @@ void loop() {
               Serial.print("Bytes sent: ");
               Serial.println(bytesSent, DEC);
           
-          } else if (RXMODE == "sampleRx") {
-            Serial.print("Sample Rx Mode");
-            //Print the whole packet at once
-              uint8_t byte = client.print(bytes);
+          // } else if (RXMODE == "sampleRx") {
+          //   Serial.print("Sample Rx Mode");
+          //   //Print the whole packet at once
+          //     uint8_t byte = client.print(bytes);
 
-              Serial.print("Bytes sent: ");
-              Serial.println(byte, DEC);
-          }
+          //     Serial.print("Bytes sent: ");
+          //     Serial.println(byte, DEC);
+          // }
 
             uint32_t TXEnd = timerReadMicros(timer1);
             Serial.print("Tx Time Micros: ");
