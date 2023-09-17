@@ -197,16 +197,35 @@ void loop() {
 
               uint16_t dist16 = measure.RangeMilliMeter;
 
-              Serial.print("raw distance: ");
-              Serial.println(dist16, HEX);
+              if (measure.RangeStatus == 0) {
+                Serial.print("Range Valid");
+                Serial.print("raw distance: ");
+                Serial.println(dist16, HEX);
 
-              dist = (uint8_t) ((dist16) >> 2);   //Divide by 8 to get range of 0 - 2000mm in 8 bits
+                dist = (uint8_t) ((dist16) >> 2);   //Divide by 8 to get range of 0 - 2000mm in 8 bits
 
-              Serial.print("Scaled distance: ");
-              Serial.println(dist, HEX);
-            
-              Serial.print("distance Deximal: ");
-              Serial.println(dist, DEC);
+                Serial.print("Scaled distance: ");
+                Serial.println(dist, HEX);
+              
+                Serial.print("distance Deximal: ");
+                Serial.println(dist, DEC);
+
+              } else {
+                dist = -1;
+               
+                if (measure.RangeStatus == 1) {
+                  Serial.print("Sigma Fail");
+                } else if (measure.RangeStatus == 2) {
+                  Serial.print("Signal Fail");
+                } else if ((measure.RangeStatus == 3)) {
+                  Serial.print("Min Range Fail");
+                } else if (measure.RangeStatus == 4) {
+                  Serial.print("Phase Fail");
+                } else if ((measure.RangeStatus == 255)) {
+                  Serial.print("No Data Fail");
+                  ESP.restart();
+                }
+              } 
               
               uint32_t getDistEnd = timerReadMicros(timer1);
               Serial.print("Dist measurement micros: ");
@@ -256,20 +275,29 @@ void loop() {
            
           }
 
-          if (byteCode == 0x0F && dist > 0 && dist < 2000) {
+          if (byteCode == 0x0F) {
               Serial.print("Byte code 0x0F send dist ");
               Serial.print("distance Deximal: ");
               Serial.println(dist, DEC);
+
+            if (dist > 0 && dist < 250) {                        //Send the dist data we have if it is in range
               uint8_t byte = client.write(dist);
               bytesSent += byte;
-
+              
+            }
+              else { //We have to send something because the client is waiting for it - range is 0-250 so 255 is okay
+              uint8_t byte = client.write(0xFF);
+              bytesSent += byte;
+              
               Serial.print("Byte  ");
               Serial.print(SOCKPACKSIZE + 1);
               Serial.print(": ");
-              Serial.println(dist, DEC);
+              Serial.println(0xFF, DEC);
+
             }
               Serial.print("Bytes sent: ");
               Serial.println(bytesSent, DEC);
+          } 
           
           // } else if (RXMODE == "sampleRx") {
           //   Serial.print("Sample Rx Mode");
