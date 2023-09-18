@@ -29,6 +29,7 @@
 #define MOVINGAVGSIZE 5   //Number samples to include in moving average [12.5ms * 8 = 100ms]
 #define ZEROTHRES 18.0     //All sensor values between +- of this value are set to zero
 #define RXMODE "byteRx"
+#define TOFINTPIN 8 //Interupt pin for VL53L0X ToF sensor
 
 ///************************************
 //          Data Globals
@@ -51,7 +52,8 @@ extern char bytes[SOCKPACKSIZE];
 extern accVector accVecArray[NUMSENSORS][MOVINGAVGSIZE];
 extern uint8_t txCount;
 extern uint8_t sampleCount;
-//extern VL53L0X_RangingMeasurementData_t measure;
+extern uint8_t dist;
+extern uint8_t toFReady;
 
 ///************************************
 //          I2C Globals
