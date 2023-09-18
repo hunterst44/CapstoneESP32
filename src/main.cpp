@@ -216,11 +216,11 @@ void loop() {
 
               uint8_t distReady = digitalRead(TOFINTPIN);
               if (distReady == LOW) {
-                toF.getRangingMeasurement(&measure, true);
-                toF.getVcselPulsePeriod();
-                toF.setMeasurementTimingBudgetMicroSeconds();
-                toF.configSensor();
-                toF
+                // toF.getRangingMeasurement(&measure, true);
+                // toF.getVcselPulsePeriod();
+                // toF.setMeasurementTimingBudgetMicroSeconds();
+                // toF.configSensor();
+                // toF
                 //toF.getSingleRangingMeasurement(&measure, true);
                 //toF.setGpioConfig();
 
