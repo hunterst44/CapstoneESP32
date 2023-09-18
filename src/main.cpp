@@ -33,7 +33,7 @@ AsyncWebServer server(4000);
 Adafruit_VL53L0X toF = Adafruit_VL53L0X();
 
 // //Structure to hold ToF sensor data
-// VL53L0X_RangingMeasurementData_t measure;
+VL53L0X_RangingMeasurementData_t measure;
 
 //Globals
 uint8_t I2CPort = 0;
@@ -191,16 +191,23 @@ void loop() {
               Serial.println();
 
               //Structure to hold ToF sensor data
-              VL53L0X_RangingMeasurementData_t measure;
+              //VL53L0X_RangingMeasurementData_t measure;
 
               toF.getSingleRangingMeasurement(&measure, true);
+              //toF.setGpioConfig();
 
               uint16_t dist16 = measure.RangeMilliMeter;
 
               if (measure.RangeStatus == 0) {
-                Serial.print("Range Valid");
+                Serial.println("Range Valid");
                 Serial.print("raw distance: ");
-                Serial.println(dist16, HEX);
+                Serial.println("****************************************");
+                Serial.println(dist16, DEC);
+                Serial.println(dist16, DEC);
+                Serial.println(dist16, DEC);
+                Serial.println(dist16, DEC);
+                Serial.println(dist16, DEC);
+                Serial.println("****************************************");
 
                 dist = (uint8_t) ((dist16) >> 2);   //Divide by 8 to get range of 0 - 2000mm in 8 bits
 
