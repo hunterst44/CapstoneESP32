@@ -92,6 +92,7 @@ void setup() {
   // Enable Continous Measurement Mode
   //Serial.println("Set Mode VL53L0X_DEVICEMODE_CONTINUOUS_RANGING... ");
   toF.setDeviceMode(VL53L0X_DEVICEMODE_CONTINUOUS_RANGING, false);
+  toF.configSensor(toF.VL53L0X_SENSE_LONG_RANGE);  //Set to long range
   toFReady = 1;    //Set to one when the toF is ready to measure; 0 when measuring or disabled
 
 
@@ -216,20 +217,20 @@ void loop() {
 
               uint8_t distReady = digitalRead(TOFINTPIN);
               if (distReady == LOW) {
-                // toF.getRangingMeasurement(&measure, true);
-                // toF.getVcselPulsePeriod();
+                toF.getRangingMeasurement(&measure, true);
+                //toF.getVcselPulsePeriod();
                 // toF.setMeasurementTimingBudgetMicroSeconds();
-                // toF.configSensor();
+                //toF.configSensor();
                 // toF
                 //toF.getSingleRangingMeasurement(&measure, true);
                 //toF.setGpioConfig();
 
                 uint16_t dist16 = measure.RangeMilliMeter;
 
-                if (measure.RangeStatus == 0) {
+                if (measure.RangeStatus == 0 || measure.RangeStatus == 2) {
                   Serial.println("Range Valid");
-                  Serial.print("raw distance: ");
                   Serial.println("****************************************");
+                  Serial.println("raw distance: ");
                   Serial.println(dist16, DEC);
                   Serial.println(dist16, DEC);
                   Serial.println(dist16, DEC);
