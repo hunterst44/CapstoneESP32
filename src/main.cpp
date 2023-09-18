@@ -24,14 +24,24 @@ Note ESPAsyncWebServer is required for the elegant OTA library, but is not used 
 #include <math.h>
 #include <AsyncElegantOTA.h>
 #include <ESPAsyncWebServer.h>
+#include "Adafruit_VL53L0X.h"
 
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(4000);
+
+//Create time of flight sensor object
+Adafruit_VL53L0X toF = Adafruit_VL53L0X();
+
+// //Structure to hold ToF sensor data
+VL53L0X_RangingMeasurementData_t measure;
 
 //Globals
 uint8_t I2CPort = 0;
 uint8_t vecCount = 0;  //Count number of samples taken for timing tests
 //uint8_t dataCount = 0;
+uint8_t dist = -1;       //For collecting distance data from VL53L0X
+uint8_t toFReady = 0;    //Set to one when the toF is ready to measure; 0 when measuring or disabled
+uint8_t toFLoopCount = 0; //Counter for number of loops between each ToF reading
 
 //int16_t Acc1Avg[3];   //XYZ vector
 
@@ -46,7 +56,6 @@ accVector accVecArray[NUMSENSORS][MOVINGAVGSIZE]; //array of vector arrays
 //accVector Acc1Vectors[accPacketSize];
 uint8_t sampleCount = 0;    //Counts number of samples for the moving average filter
 uint8_t txCount = 0;
-
 
 //Timer stuff
 hw_timer_t * timer1 = NULL;
@@ -66,13 +75,26 @@ uint32_t AccPacketEndMicro;
  * setup()
 *************************/
 void setup() {
+
+  Serial.begin(115200);
+   #ifdef DEBUG
+    Serial.println("I am alive!");
+  #endif /*DEBUG*/
   
   Wire.begin(I2C_SDA, I2C_SCL);
 
-  Serial.begin(115200);
-  #ifdef DEBUG
-    Serial.println("I am alive!");
-  #endif /*DEBUG*/
+  while (!toF.begin(0x29,false)) {
+    Serial.println("Failed to boot VL53L0X ToF sensor... restarting");
+    ESP.restart();
+  }
+  //toF.setInterruptThresholds();
+
+  // Enable Continous Measurement Mode
+  //Serial.println("Set Mode VL53L0X_DEVICEMODE_CONTINUOUS_RANGING... ");
+  toF.setDeviceMode(VL53L0X_DEVICEMODE_CONTINUOUS_RANGING, false);
+  toF.configSensor(toF.VL53L0X_SENSE_LONG_RANGE);  //Set to long range
+  toFReady = 1;    //Set to one when the toF is ready to measure; 0 when measuring or disabled
+
 
   AsyncElegantOTA.begin(&server);    // Start ElegantOTA
 
@@ -91,7 +113,7 @@ void setup() {
   Serial.println("Connected to the WiFi Network");
   Serial.println(WiFi.localIP());
   wifiServer.begin();
-  server.begin();  //server for OTA
+  //server.begin();  //server for OTA
   Serial.println("Started OTA server");
 
   //Start the timer
@@ -120,14 +142,17 @@ void loop() {
       while (client.available() > 0) {
         uint8_t byteCode = client.read();
 
+        Serial.print("byteCode: ");
+        Serial.println(byteCode, HEX);
+
         #ifdef DEBUG
           Serial.print("byteCode: ");
           Serial.println(byteCode, HEX);
         #endif /*DEBUG*/
 
-        if (byteCode == 0xFF) {
-          //Send Acc data
-
+        if (byteCode == 0xFF || byteCode == 0x0F) {  //0xFF is normal case, 0x0F is normal case plus distance
+          uint8_t dist = -1;         //Distance measurement in mm
+          //Send Acc data only
           #ifdef DEBUG
             Serial.println("Start Acc data packet");
           #endif /*DEBUG*/
@@ -159,7 +184,7 @@ void loop() {
             Serial.println(getDataEnd - getDataStart);
             sampleCount++;
           }
-          
+
           uint32_t MvgAvgStart = timerReadMicros(timer1);
           if (sampleCount == MOVINGAVGSIZE) {        //After moving average size of samples (3) filter
             accVector AccVectorMAVG[NUMSENSORS];
@@ -171,6 +196,84 @@ void loop() {
             uint32_t MvgAvgEnd = timerReadMicros(timer1);
             Serial.print("Moving Avg Time Micros: ");
             Serial.println(MvgAvgEnd - MvgAvgStart);
+
+            if (byteCode == 0x0F) {
+              uint32_t getDistStart = timerReadMicros(timer1);
+          
+              Serial.print("Get distance");
+              Serial.println();
+
+              //Structure to hold ToF sensor data
+              //VL53L0X_RangingMeasurementData_t measure;
+              if (toFReady) {
+                toF.startMeasurement();
+                toFReady = 0;
+                toFLoopCount = 0;
+              }
+              else {
+                toFLoopCount++;
+              }  
+
+              uint8_t distReady = digitalRead(TOFINTPIN);
+              if (distReady == LOW) {
+                toF.getRangingMeasurement(&measure, false);
+                //toF.getVcselPulsePeriod();
+                // toF.setMeasurementTimingBudgetMicroSeconds();
+                //toF.configSensor();
+                // toF
+                //toF.getSingleRangingMeasurement(&measure, true);
+                //toF.setGpioConfig();
+
+                uint16_t dist16 = measure.RangeMilliMeter;
+
+                if (measure.RangeStatus == 0 || measure.RangeStatus == 2) {
+                  Serial.println("Range Valid");
+                  Serial.println("****************************************");
+                  Serial.println("raw distance: ");
+                  Serial.println(dist16, DEC);
+                  Serial.println(dist16, DEC);
+                  Serial.println(dist16, DEC);
+                  Serial.println(dist16, DEC);
+                  Serial.println(dist16, DEC);
+                  Serial.println("****************************************");
+
+                  dist = (uint8_t) ((dist16) >> 2);   //Divide by 8 to get range of 0 - 2000mm in 8 bits
+
+                  Serial.print("Scaled distance: ");
+                  Serial.println(dist, HEX);
+                
+                  Serial.print("distance Deximal: ");
+                  Serial.println(dist, DEC);
+
+                  Serial.print("samples per distance measurement: ");
+                  Serial.println(toFLoopCount, DEC);
+
+                } else {
+                  dist = -1;
+                
+                  if (measure.RangeStatus == 1) {
+                    Serial.print("Sigma Fail");
+                  } else if (measure.RangeStatus == 2) {
+                    Serial.print("Signal Fail");
+                  } else if ((measure.RangeStatus == 3)) {
+                    Serial.print("Min Range Fail");
+                  } else if (measure.RangeStatus == 4) {
+                    Serial.print("Phase Fail");
+                  } else if ((measure.RangeStatus == 255)) {
+                    Serial.print("No Data Fail");
+                    ESP.restart();
+                  }
+                }
+                toF.clearInterruptMask(false);    //Reset the interrupt for the next measurement
+                toFReady = 1; 
+              } else {
+                Serial.println("distReady High");
+              }
+              
+              uint32_t getDistEnd = timerReadMicros(timer1);
+              Serial.print("Dist measurement micros: ");
+              Serial.println(getDistEnd - getDistStart);
+            }
 
             #ifdef DEBUG
               Serial.print("accVector.XAcc: ");
@@ -188,8 +291,8 @@ void loop() {
             #endif /*DEBUG*/
 
           uint32_t TXStart = timerReadMicros(timer1);
-          if (RXMODE == "byteRx") {
-            Serial.print("Byte Rx Mode");
+          // if (RXMODE == "byteRx") {
+            // Serial.print("Byte Rx Mode");
             //Write vector byte array to socket one byte at a time
 
             uint8_t bytesSent = 0;
@@ -197,7 +300,7 @@ void loop() {
               uint8_t byte = client.write(bytes[i]);
               bytesSent += byte;
 
-              Serial.print("DEC ");
+              Serial.print("Byte  ");
               Serial.print(i);
               Serial.print(": ");
               Serial.println(bytes[i], DEC);
@@ -212,18 +315,41 @@ void loop() {
                 Serial.print(": ");
                 Serial.println(bytes[i], HEX);
               #endif /*DEBUG*/
+           
+          }
+
+          if (byteCode == 0x0F) {
+              Serial.print("Byte code 0x0F send dist ");
+              Serial.print("distance Deximal: ");
+              Serial.println(dist, DEC);
+
+            if (dist > 0 && dist < 250) {                        //Send the dist data we have if it is in range
+              uint8_t byte = client.write(dist);
+              bytesSent += byte;
+              
+            }
+              else { //We have to send something because the client is waiting for it - range is 0-250 so 255 is okay
+              uint8_t byte = client.write(0xFF);
+              bytesSent += byte;
+              
+              Serial.print("Byte  ");
+              Serial.print(SOCKPACKSIZE + 1);
+              Serial.print(": ");
+              Serial.println(0xFF, DEC);
+
             }
               Serial.print("Bytes sent: ");
               Serial.println(bytesSent, DEC);
+          } 
           
-          } else if (RXMODE == "sampleRx") {
-            Serial.print("Sample Rx Mode");
-            //Print the whole packet at once
-              uint8_t byte = client.print(bytes);
+          // } else if (RXMODE == "sampleRx") {
+          //   Serial.print("Sample Rx Mode");
+          //   //Print the whole packet at once
+          //     uint8_t byte = client.print(bytes);
 
-              Serial.print("Bytes sent: ");
-              Serial.println(byte, DEC);
-          }
+          //     Serial.print("Bytes sent: ");
+          //     Serial.println(byte, DEC);
+          // }
 
             uint32_t TXEnd = timerReadMicros(timer1);
             Serial.print("Tx Time Micros: ");
@@ -274,7 +400,7 @@ void loop() {
                 Serial.print("AccVectorTimeMicro: ");
                 Serial.println(AccVectorTimeMicro);
               #endif /*DEBUG*/
-          }  
+          } 
         }
       }
     //client.stop();
