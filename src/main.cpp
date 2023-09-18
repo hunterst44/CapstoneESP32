@@ -83,7 +83,7 @@ void setup() {
   
   Wire.begin(I2C_SDA, I2C_SCL);
 
-  while (!toF.begin(0x29,true)) {
+  while (!toF.begin(0x29,false)) {
     Serial.println("Failed to boot VL53L0X ToF sensor... restarting");
     ESP.restart();
   }
@@ -200,7 +200,6 @@ void loop() {
             if (byteCode == 0x0F) {
               uint32_t getDistStart = timerReadMicros(timer1);
           
-              Serial.println();
               Serial.print("Get distance");
               Serial.println();
 
@@ -217,7 +216,7 @@ void loop() {
 
               uint8_t distReady = digitalRead(TOFINTPIN);
               if (distReady == LOW) {
-                toF.getRangingMeasurement(&measure, true);
+                toF.getRangingMeasurement(&measure, false);
                 //toF.getVcselPulsePeriod();
                 // toF.setMeasurementTimingBudgetMicroSeconds();
                 //toF.configSensor();
