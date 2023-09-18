@@ -2,12 +2,21 @@
 main.cpp
 
 Created May 1, 2023 by Joel Legassie
-Sensor polling is initiated when the ESP32 receives 0xFF from the client and continues until the client closes the connection
+Sensor polling is initiated when the ESP32 receives 0xFF or 0x0F from the client and continues until the client closes the connection
 Polls NUMSENSORS of sensors in turn to collect a sample of 3 features per sensor (XYZ Axes)
 Each sensor's features take up ACCPACKSIZE bytes (2 bytes per feature)
 Collects MOVINGAVGSIZE number of samples and computes a moving average of them to send to the client
 Any feature values within ZEROTHRES of 0 are rounded to zero
 Sends a packet of SOCKPACKSIZE (ACCPACKSIZE * NUMSENSORS)
+
+If ESP32 receives 0xFF it polls only the accelermoters
+
+If it receives 0x0F it polls accelerometers and VL53l0X ToF sensor
+ToF sensor is connected directly to the SDA and SCL I2C pins on the ESP32
+ToF GPIO01 is connected to ESP32 Pin 8. It is the interrupt pin
+
+Accelerometer data is prepped for neural network training or prediction
+ToF data is scaled to 1 byte and sent straight across to the DAW plugin
 
 Over the air updates - you can upload an firmware.bin file to <ESP32 IP Address>:4040/update
 Note ESPAsyncWebServer is required for the elegant OTA library, but is not used for sending sensor data to the client
