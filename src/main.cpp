@@ -34,6 +34,8 @@ Note ESPAsyncWebServer is required for the elegant OTA library, but is not used 
 #include <AsyncElegantOTA.h>
 #include <ESPAsyncWebServer.h>
 #include "Adafruit_VL53L0X.h"
+#include <TFT_eSPI.h>
+#include <SPI.h>
 
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(4000);
@@ -43,6 +45,9 @@ Adafruit_VL53L0X toF = Adafruit_VL53L0X();
 
 // //Structure to hold ToF sensor data
 VL53L0X_RangingMeasurementData_t measure;
+
+//Init Display
+TFT_eSPI tft = TFT_eSPI();
 
 //Globals
 uint8_t I2CPort = 0;
@@ -129,10 +134,52 @@ void setup() {
   timer1 = timerBegin(0, 10, true);
   timerStart(timer1);
 
-  #ifdef DEBUG
-    Serial.print("Core: ");
-    Serial.println(xPortGetCoreID());
-  #endif /*DEBUG*/
+  tft.init();
+  // uint16_t CursorX = tft.getCursorX();
+  // uint16_t CursorY = tft.getCursorY();
+  // Serial.print("TFT CursorX: ");
+  // Serial.println(CursorX, DEC);
+  // Serial.print("TFT CursorY: ");
+  // Serial.println(CursorY, DEC);
+  
+  // CursorX = tft.getCursorX();
+  // CursorY = tft.getCursorY();
+  // Serial.print("TFT CursorX: ");
+  // Serial.println(CursorX, DEC);
+  // Serial.print("TFT CursorY: ");
+  // Serial.println(CursorY, DEC);
+  tft.fillScreen(0xFFFF);
+  tft.setTextColor(TFT_BLACK, TFT_WHITE);
+  tft.setCursor(30,15,1);     //(Left, Top, font)
+  tft.setTextSize(2);
+  //tft.setTextFont(1);
+  tft.println("The Conductor");
+  tft.setCursor(30,30,1);
+  tft.println("-------------");
+
+  // tft.setTextSize(2);
+  // tft.setCursor(5,50,1);
+  // tft.print("IP: ");
+  tft.setCursor(30,50,1);
+  tft.println(WiFi.SSID());
+  
+
+  // tft.setCursor(2,75,1);
+  // tft.print("SSID: ");
+  tft.setCursor(30,75,1);
+  tft.println(WiFi.localIP());
+  // CursorX = tft.getCursorX();
+  // CursorY = tft.getCursorY();
+  // Serial.print("TFT CursorX: ");
+  // Serial.println(CursorX, DEC);
+  // Serial.print("TFT CursorY: ");
+  // Serial.println(CursorY, DEC);
+  Serial.println("TFT written");
+
+  // #ifdef DEBUG
+  //   Serial.print("Core: ");
+  //   Serial.println(xPortGetCoreID());
+  // #endif /*DEBUG*/
 }
 
 /************************
