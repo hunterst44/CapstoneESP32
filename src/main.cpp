@@ -109,7 +109,6 @@ void setup() {
   toF.configSensor(toF.VL53L0X_SENSE_LONG_RANGE);  //Set to long range
   toFReady = 1;    //Set to one when the toF is ready to measure; 0 when measuring or disabled
 
-
   AsyncElegantOTA.begin(&server);    // Start ElegantOTA
 
   WiFi.begin(ssid, password);
