@@ -59,6 +59,8 @@ uint8_t toFLoopCount = 0; //Counter for number of loops between each ToF reading
 
 //int16_t Acc1Avg[3];   //XYZ vector
 
+char APssid[] = APNETWORK;
+char APpassword[] = APPASS;
 const char* ssid = NETWORK;
 const char* password = PASS;
 WiFiServer wifiServer(80);
@@ -97,21 +99,38 @@ void setup() {
   
   Wire.begin(I2C_SDA, I2C_SCL);
 
-  while (!toF.begin(0x29,false)) {
-    Serial.println("Failed to boot VL53L0X ToF sensor... restarting");
-    ESP.restart();
-  }
+  // while (!toF.begin(0x29,false)) {
+  //   Serial.println("Failed to boot VL53L0X ToF sensor... restarting");
+  //   ESP.restart();
+  // }
   //toF.setInterruptThresholds();
 
   // Enable Continous Measurement Mode
   //Serial.println("Set Mode VL53L0X_DEVICEMODE_CONTINUOUS_RANGING... ");
-  toF.setDeviceMode(VL53L0X_DEVICEMODE_CONTINUOUS_RANGING, false);
-  toF.configSensor(toF.VL53L0X_SENSE_LONG_RANGE);  //Set to long range
-  toFReady = 1;    //Set to one when the toF is ready to measure; 0 when measuring or disabled
+  // toF.setDeviceMode(VL53L0X_DEVICEMODE_CONTINUOUS_RANGING, false);
+  // toF.configSensor(toF.VL53L0X_SENSE_LONG_RANGE);  //Set to long range
+  toFReady = 0;    //Set to one when the toF is ready to measure; 0 when measuring or disabled
+
+  //Wifi stuff
+  WiFi.mode(WIFI_MODE_APSTA);
+  WiFi.setAutoReconnect(true);
 
   AsyncElegantOTA.begin(&server);    // Start ElegantOTA
-
-  WiFi.begin(ssid, password);
+  
+  Serial.println("Creating AP network");
+    //WiFi.begin(NETWORK, PASS);
+    //delay(1000);
+    //Serial.print("IP: ");
+    //Serial.println(WiFi.localIP());
+    WiFi.softAP(APNETWORK, APPASS);
+    Serial.println("Connected mode 0");
+    
+      // if (WiFi.getMode() == WIFI_MODE_AP) {
+         
+      //   Serial.println("Connected");
+    Serial.println(WiFi.softAPIP());
+  
+  //WiFi.begin(ssid, password);
   uint8_t wifiAttempts = 0;
   while(WiFi.status() != WL_CONNECTED)  {
     delay(1000);
@@ -124,7 +143,7 @@ void setup() {
       }
     }
   Serial.println("Connected to the WiFi Network");
-  Serial.println(WiFi.localIP());
+  //Serial.println(WiFi.localIP());
   wifiServer.begin();
   //server.begin();  //server for OTA
   Serial.println("Started OTA server");
